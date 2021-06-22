@@ -2,7 +2,7 @@
 Identificação e caracterização de padrões associados a fraudes eleitorais em redes sociais online, WhatsApp e Telegram
 
 #### Configuração do ambiente
-Versão Python: 3.5 ou superior
+Python: 3.5 ou superior
 
 ```
 ### Instalar biblioteca spacy para lematização
