@@ -9,15 +9,15 @@ import spacy
 import json
 
 import argparse
+import logging
 
 from collections import Counter
 from datetime import datetime
 
 nlp = spacy.load("pt_core_news_lg")
 
-
 def __get_texto_sem_simbolos_especiais(text):
-    text = text.replace('\n', " ").replace('#', "").replace('\"', "").replace('\'', "").replace(",", " ").replace(":",
+    text = text.replace('\n', " ").replace('#', "").replace('\"', "").replace('"', "").replace('\'', "").replace("'", "").replace(",", " ").replace(":",
                                                                                                                   "").replace(
         ".", "").replace(";", "").replace("!", "").replace("@", "").replace("$", "").replace("%", "").replace("&",
                                                                                                               "").replace(
@@ -95,38 +95,197 @@ def __get_valence_score(text):
 
     return score
 
-def main():
-    try:
-        parser = argparse.ArgumentParser(description='Metodo para identificar propagandas eleitorais.')
-        parser.add_argument('-t', '--texto', dest='text', type=str, default=False,
-                            help='Texto para ser avaliado.')
-        parser.add_argument('-c', '--corpus', dest='filename_corpus', type=str, default=False,
-                            help='Caminho do arquivo que contem o corpus.')
+def __verifica_presenca_em_blacklist(text, blacklist_extra=None):
+    text = __faz_limpeza_texto(text=text)
 
-        args = parser.parse_args()
+    with open("blacklist.txt", "r", encoding="utf-8") as file_input:
+        for termo in file_input:
+            termo = __faz_limpeza_texto(text=termo)
 
-        if args.text:
-            text = __faz_limpeza_texto(text=args.text)
+            if termo in text:
+                return True
+
+    if blacklist_extra is not None:
+        for termo in blacklist_extra:
+            termo = __faz_limpeza_texto(text=termo)
+
+            if termo in text:
+                return True
+
+    return False
+
+def __imprime_resultado(text, blacklist_extra):
+    if text is not None and len(text) > 0:
+        #### Verifica se texto contem termos da blacklist
+        result = __verifica_presenca_em_blacklist(text=text, blacklist_extra=blacklist_extra)
+        if result is True:
+            score = 0
+        else:
+            text = __faz_limpeza_texto(text=text)
 
             score = __get_valence_score(text=text)
 
-            score = round(score,3)
+            score = round(score, 3)
 
-            print(score, flush=True)
+        print(score, flush=True)
+    else:
+        print("ERRO: texto nulo ou vazio.", flush=True)
 
-        elif args.filename_corpus:
-            with open(args.filename_corpus, "r", encoding="utf-8") as file_input:
-                for text in file_input:
-                    text = __faz_limpeza_texto(text=text)
 
-                    score = __get_valence_score(text=text)
+def __get_objeto_data(string_datetime, only_date=False):
+    a_datetime = None
+    string_datetime = string_datetime.replace("\"", "")
+    string_datetime = string_datetime.replace("'", "")
 
-                    score = round(score, 3)
+    if only_date is True:
+        datetime_pattern = '%Y-%m-%d'
+        try:
+            a_datetime = datetime.strptime(string_datetime, datetime_pattern)
+            return a_datetime.date()
+        except Exception as e:
+            print("ERRO ao formatar string como DATA:", string_datetime, "DETALHES:", e, flush=True)
+    else:
+        datetime_patterns = ['%Y-%m-%d %H:%M:%S','%Y-%m-%dT%H:%M:%SZ', '%a %b %d %H:%M:%S +0000 %Y']
 
-                    print(score, flush=True)
+        for datetime_pattern in datetime_patterns:
+            try:
+                a_datetime = datetime.strptime(string_datetime, datetime_pattern)
+            except Exception as e:
+                # print("ERRO ao formatar string como DATA:", string_datetime, "DETALHES:", e, flush=True)
+                pass
+            else:
+                return (a_datetime.date())
 
+        if a_datetime is None:
+            print("ERRO ao formatar string como DATA:", string_datetime, flush=True)
+
+            return (a_datetime)
+
+def __processa_documento_json(document, atributo_texto, atributo_data, data_minima, data_maxima, blacklist_extra):
+    if atributo_texto in document and atributo_data in document:
+        data_documento = __get_objeto_data(string_datetime=document[atributo_data])
+
+        if data_documento >= data_minima and data_documento <= data_maxima:
+            __imprime_resultado(text=document[atributo_texto], blacklist_extra=blacklist_extra)
+    else:
+        print("ERRO: documento nao possui atributo de texto ou atributo de data.")
+
+
+def main():
+    try:
+        parser = argparse.ArgumentParser(description='Metodo para identificar propagandas eleitorais.')
+
+        '''
+        ###############
+        ARGUMENTOS OBRIGATÓRIOS
+        ###############
+        '''
+        #### texto único --- OU
+        parser.add_argument('--texto', '-t',dest='text', type=str, default=False,
+                            help='Texto para ser avaliado.')
+        #### lista de JSON --- OU
+        parser.add_argument('--lista', '-l',  dest='json_list', type=str, default=False,
+                            help='Lista no formato JSON com os documentos.')
+        #### corpus JSON ou TXT (por padrão, o corpus é JSON)
+        parser.add_argument('--corpus', '-c', dest='filename_corpus', type=str, default=False,
+                            help='Caminho do arquivo que contem o corpus.')
+        #### --- Se corpus tipo JSON:
+        # parser.add_argument('-json', dest='corpus_json', type=str, default=False,
+        #                     help='Declara que tipo do corpus como JSON')
+        parser.add_argument('--atributo-texto', '-at', dest='attribute_name_text', type=str, default=False,
+                            help='Nome do atributo no JSON que contem o texto.')
+        parser.add_argument('--atributo-data', '-ad', dest='attribute_name_date', type=str, default=False,
+                            help='Nome do atributo no JSON que contem o texto.')
+        parser.add_argument('--data-minima', '-dmin',  dest='date_min', type=str, default=False,
+                            help='Data minima para a filtragem (limite inferior).')
+        parser.add_argument('--data-maxima', '-dmax', dest='date_max', type=str, default=False,
+                            help='Data maxima para a filtragem (limite superior).')
+
+        #### --- Se corpus tipo TXT:
+        parser.add_argument('-txt',action='store_true', dest='corpus_txt', default=False,
+                            help='Declara que tipo do corpus como TXT')
+
+        '''
+        ###############
+        ARGUMENTOS OPCIONAIS
+        ###############
+        '''
+        parser.add_argument('--blacklist-arquivo', '-ba', dest='filename_blacklist', type=str, default=False,
+                            help='Caminho do arquivo que contem termos para acrescentar na blacklist.')
+        parser.add_argument('--blacklist-texto', '-bt', dest='blacklist_text', type=str, default=False,
+                            help='Texto que contem termos para acrescentar na blacklist.')
+
+        '''
+        ###############
+        PROCESSA ARGUMENTOS DE PROGRAMA E VERIFICA ERROS
+        ###############
+        '''
+        args = parser.parse_args()
+
+        if (args.filename_corpus or args.json_list) and (args.attribute_name_text is None or args.attribute_name_date is None or
+                                             args.date_min is None or args.date_max is None):
+            nome_argumento = "--corpus" if args.filename_corpus else "--lista"
+            parser.error('O argumento {} exige que seja informado --atributo-texto, --atributo-data, --data-minima e --data-maxima'.format(nome_argumento))
         else:
-            print("Nao foi possivel processar sua requisicaco. Informe -t para processar um texto ou -c para processar um corpus.")
+            ### Verifica se blacklist extra foi passada como parametro
+            if args.filename_blacklist:
+                blacklist_extra = []
+                with open(args.filename_blacklist, "r", encoding="utf-8") as file_input:
+                    for termo in file_input:
+                        blacklist_extra.append(termo)
+            elif args.blacklist_text:
+                blacklist_extra = []
+                termos = args.blacklist_text.split(",")
+                for termo in termos:
+                    blacklist_extra.append(termo)
+            else:
+                blacklist_extra = None
+
+            '''
+            DETERMINA TIPO DE ENTRADA
+            '''
+            #### texto único
+            if args.text:
+                __imprime_resultado(text=args.text,blacklist_extra=blacklist_extra)
+
+            #### lista de JSON
+            elif args.json_list:
+                import ast
+                json_list = ast.literal_eval(args.json_list.replace("\n", ""))
+
+                data_minima = __get_objeto_data(string_datetime=args.date_min, only_date=True)
+                data_maxima = __get_objeto_data(string_datetime=args.date_max, only_date=True)
+
+                for document in json_list:
+                    __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
+                                              atributo_data=args.attribute_name_date,
+                                              data_minima=data_minima, data_maxima=data_maxima,
+                                              blacklist_extra=blacklist_extra)
+
+            #### corpus JSON ou TXT
+            elif args.filename_corpus:
+                data_minima = None
+                data_maxima = None
+                if args.corpus_txt is False:
+                    data_minima = __get_objeto_data(string_datetime=args.date_min, only_date=True)
+                    data_maxima = __get_objeto_data(string_datetime=args.date_max, only_date=True)
+
+                with open(args.filename_corpus, "r", encoding="utf-8") as file_input:
+                    for document in file_input:
+                        #### --- Ou seja, Se corpus tipo JSON:
+                        if args.corpus_txt is False:
+                            document = json.loads(document)
+                            __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
+                                                  atributo_data=args.attribute_name_date,
+                                                  data_minima=data_minima, data_maxima=data_maxima,
+                                                      blacklist_extra=blacklist_extra)
+
+                        #### --- Ou seja, Se corpus tipo TXT:
+                        else:
+                            __imprime_resultado(text=document, blacklist_extra=blacklist_extra)
+
+            else:
+                print("Nao foi possivel processar sua requisicaco.")
 
     except Exception as e:
         exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -136,5 +295,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # other_methods()
     main()
