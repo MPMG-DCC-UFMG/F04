@@ -14,7 +14,7 @@ $ python -m spacy download pt_core_news_lg
 
 #### Método probabilístico de identificação de propaganda eleitoral antecipada
 
-- calcula score para **textos únicos, arquivos json, lista de json e arquivos de texto simples** e imprime resultado,
+- calcula score para **textos únicos, arquivos json, lista de json e arquivos de texto simples**,
 
 - permite a filtragem de documentos entre determinado **período de tempo** para fazer a análise de propaganda antecipada,
 
