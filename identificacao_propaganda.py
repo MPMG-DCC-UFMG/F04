@@ -17,11 +17,13 @@ from datetime import datetime
 nlp = spacy.load("pt_core_news_lg")
 
 def __get_texto_sem_simbolos_especiais(text):
+    text = text.lower()
+
     text = text.replace('\n', " ").replace('#', "").replace('\"', "").replace('"', "").replace('\'', "").replace("'", "").replace(",", " ").replace(":",
                                                                                                                   "").replace(
         ".", "").replace(";", "").replace("!", "").replace("@", "").replace("$", "").replace("%", "").replace("&",
                                                                                                               "").replace(
-        "?", "").replace("*", "").replace("-", " ").replace("(", "").replace(")", "").replace("+", "").lower()
+        "?", "").replace("*", "").replace("-", " ").replace("(", "").replace(")", "").replace("+", "")
 
     my_val = str(text).rstrip("\n").rstrip("\t").rstrip("\r")
     my_val = str(my_val).replace('\r', " ").replace('\n', " ").replace('\t', " ")
@@ -84,16 +86,15 @@ def __get_valence_score(text):
     string_list = list(filter(lambda x: x in termos, string_list))
 
     score = 0
+    explicacao_texto = ""
     for palavra in string_list:
         score += termos[palavra]
+        explicacao_texto += "{"+palavra+":"+str(round(termos[palavra], 3))+"} "
 
-    if len(string_list) > 0:
-        score = score/len(string_list)
+    ### Se a soma dos valores normalizados da valence for maior que 1, então score = 1
+    score = 1 if score > 1 else score
 
-    ### O score maximo acontece quando todas as palavras do texto sao termos com score 1
-    score = __get_normalized_value(value=score, max_value=1, min_value=0) if score > 0 else 0
-
-    return score
+    return score, explicacao_texto
 
 def __verifica_presenca_em_blacklist(text, blacklist_extra=None):
     text = __faz_limpeza_texto(text=text)
@@ -114,20 +115,24 @@ def __verifica_presenca_em_blacklist(text, blacklist_extra=None):
 
     return False
 
-def __imprime_resultado(text, blacklist_extra):
+def __imprime_resultado(text, blacklist_extra, explicacao):
     if text is not None and len(text) > 0:
         #### Verifica se texto contem termos da blacklist
         result = __verifica_presenca_em_blacklist(text=text, blacklist_extra=blacklist_extra)
         if result is True:
             score = 0
+            explicacao_texto = ""
         else:
             text = __faz_limpeza_texto(text=text)
 
-            score = __get_valence_score(text=text)
+            score, explicacao_texto = __get_valence_score(text=text)
 
             score = round(score, 3)
 
-        print(score, flush=True)
+        if explicacao is True:
+            print(score,"\tExplicacao: ", explicacao_texto, flush=True)
+        else:
+            print(score, flush=True)
     else:
         print("ERRO: texto nulo ou vazio.", flush=True)
 
@@ -161,12 +166,13 @@ def __get_objeto_data(string_datetime, only_date=False):
 
             return (a_datetime)
 
-def __processa_documento_json(document, atributo_texto, atributo_data, data_minima, data_maxima, blacklist_extra):
+def __processa_documento_json(document, atributo_texto, atributo_data, data_minima, data_maxima, blacklist_extra,
+                              explicacao):
     if atributo_texto in document and atributo_data in document:
         data_documento = __get_objeto_data(string_datetime=document[atributo_data])
 
         if data_documento >= data_minima and data_documento <= data_maxima:
-            __imprime_resultado(text=document[atributo_texto], blacklist_extra=blacklist_extra)
+            __imprime_resultado(text=document[atributo_texto], blacklist_extra=blacklist_extra, explicacao=explicacao)
     else:
         print("ERRO: documento nao possui atributo de texto ou atributo de data.")
 
@@ -205,6 +211,10 @@ def main():
         parser.add_argument('-txt',action='store_true', dest='corpus_txt', default=False,
                             help='Declara que tipo do corpus como TXT')
 
+        ### ---- Opção para imprimir a explicação do score
+        parser.add_argument('-explicacao', action='store_true', dest='explicacao_metodo', default=False,
+                            help='Mostra a explicacao de cada score')
+
         '''
         ###############
         ARGUMENTOS OPCIONAIS
@@ -227,6 +237,9 @@ def main():
             nome_argumento = "--corpus" if args.filename_corpus else "--lista"
             parser.error('O argumento {} exige que seja informado --atributo-texto, --atributo-data, --data-minima e --data-maxima'.format(nome_argumento))
         else:
+
+            explicacao = args.explicacao_metodo
+
             ### Verifica se blacklist extra foi passada como parametro
             if args.filename_blacklist:
                 blacklist_extra = []
@@ -246,7 +259,7 @@ def main():
             '''
             #### texto único
             if args.text:
-                __imprime_resultado(text=args.text,blacklist_extra=blacklist_extra)
+                __imprime_resultado(text=args.text,blacklist_extra=blacklist_extra, explicacao=explicacao)
 
             #### lista de JSON
             elif args.json_list:
@@ -260,7 +273,7 @@ def main():
                     __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
                                               atributo_data=args.attribute_name_date,
                                               data_minima=data_minima, data_maxima=data_maxima,
-                                              blacklist_extra=blacklist_extra)
+                                              blacklist_extra=blacklist_extra, explicacao=explicacao)
 
             #### corpus JSON ou TXT
             elif args.filename_corpus:
@@ -278,11 +291,11 @@ def main():
                             __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
                                                   atributo_data=args.attribute_name_date,
                                                   data_minima=data_minima, data_maxima=data_maxima,
-                                                      blacklist_extra=blacklist_extra)
+                                                      blacklist_extra=blacklist_extra, explicacao=explicacao)
 
                         #### --- Ou seja, Se corpus tipo TXT:
                         else:
-                            __imprime_resultado(text=document, blacklist_extra=blacklist_extra)
+                            __imprime_resultado(text=document, blacklist_extra=blacklist_extra, explicacao=explicacao)
 
             else:
                 print("Nao foi possivel processar sua requisicaco.")
@@ -295,4 +308,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # other_methods()
     main()

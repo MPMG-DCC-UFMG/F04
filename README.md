@@ -26,7 +26,8 @@ identificacao_propaganda.py [--texto <TEXTO>]
                             [-txt] [--corpus <CAMINHO CORPUS>]
                             [--atributo-texto <NOME ATRIBUTO>] [--atributo-data <NOME ATRIBUTO>] 
                             [--data-min <YYYY-MM-DD>] [--data-max  <YYYY-MM-DD>]
-                            [--blacklist-texto <TERMOS BLACKLIST>] [--blacklist-arquivo <CAMINHO ARQUIVO>]          
+                            [--blacklist-texto <TERMOS BLACKLIST>] [--blacklist-arquivo <CAMINHO ARQUIVO>] 
+                            [-explicacao]
 ```
 
 #### Como identificar progaganda em um texto único
@@ -62,4 +63,9 @@ identificacao_propaganda.py --blacklist-texto <TERMOS BLACKLIST> [...]
 
 ### Passar caminho do arquivo que contem os termos. Um termo por linha.
 identificacao_propaganda.py --blacklist-arquivo <CAMINHO ARQUIVO> [...]
+```
+
+#### Para mostrar a explicação dos scores do método 
+```
+identificacao_propaganda.py -explicacao [...]
 ```
