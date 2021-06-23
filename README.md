@@ -5,6 +5,9 @@ Identificação e caracterização de padrões associados a fraudes eleitorais e
 Python: 3.5 ou superior
 
 ```
+### Instalar biblioteca numpy para cálculo dos scores
+$ pip install numpy
+
 ### Instalar biblioteca spacy para lematização
 $ pip install spacy
 
