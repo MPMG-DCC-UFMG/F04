@@ -28,12 +28,12 @@ TIPO_COMBINACAO_STD = "desvio-padrao"
 
 def __carrega_arquivos_de_configuracao():
     try:
-        with open("palavras_reforco.json", "r", encoding="utf-8") as file_input:
+        with open("reforco.json", "r", encoding="utf-8") as file_input:
             for document in file_input:
                 document = json.loads(document)
                 PALAVRAS_REFORCO.append((document["palavra_original"], document["nova_palavra"]))
 
-        with open("pesos_palavras.json", "r", encoding="utf-8") as file_input:
+        with open("pesos.json", "r", encoding="utf-8") as file_input:
             for document in file_input:
                 document = json.loads(document)
                 TERMOS_SELECIONADOS[document["palavra"]] = document["peso"]

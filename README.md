@@ -25,7 +25,7 @@ $ python -m spacy download pt_core_news_lg
 
 ```
 identificacao_propaganda.py [--texto <TEXTO>] 
-                            [--lista <LISTA ENTRE ASPAS>] 
+                            [--lista <LISTA JSON NO FORMATO TEXTO>] 
                             [-txt] [--corpus <CAMINHO CORPUS>]
                             [--atributo-texto <NOME ATRIBUTO>] [--atributo-data <NOME ATRIBUTO>] 
                             [--data-min <YYYY-MM-DD>] [--data-max  <YYYY-MM-DD>]
