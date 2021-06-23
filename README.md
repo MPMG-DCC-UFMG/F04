@@ -47,7 +47,7 @@ O método requer que o corpus tenha um documento no formato JSON por linha
 
 #### Como identificar progaganda em uma lista de JSON
 ```
-identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-min <YYYY-MM-DD> --data-max <YYYY-MM-DD> --lista <LISTA ENTRE ASPAS>
+identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-min <YYYY-MM-DD> --data-max <YYYY-MM-DD> --lista <LISTA JSON NO FORMATO TEXTO>
 ```
 
 A lista de json deve ser uma lista de dicionários convertida para o formato string. Ou seja, o valor precisa estar entre aspas.
