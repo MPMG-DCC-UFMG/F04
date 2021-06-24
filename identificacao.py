@@ -268,28 +268,23 @@ def __get_objeto_data(string_datetime, only_date=False):
     string_datetime = string_datetime.replace("'", "")
 
     if only_date is True:
-        datetime_pattern = '%Y-%m-%d'
-        try:
-            a_datetime = datetime.strptime(string_datetime, datetime_pattern)
-            return a_datetime.date()
-        except Exception as e:
-            print("ERRO ao formatar string como DATA:", string_datetime, "DETALHES:", e, flush=True)
+        datetime_patterns = ['%d-%m-%Y', '%Y-%m-%d']
     else:
         datetime_patterns = ['%Y-%m-%d %H:%M:%S','%Y-%m-%dT%H:%M:%SZ', '%a %b %d %H:%M:%S +0000 %Y']
 
-        for datetime_pattern in datetime_patterns:
-            try:
-                a_datetime = datetime.strptime(string_datetime, datetime_pattern)
-            except Exception as e:
-                # print("ERRO ao formatar string como DATA:", string_datetime, "DETALHES:", e, flush=True)
-                pass
-            else:
-                return (a_datetime.date())
+    for datetime_pattern in datetime_patterns:
+        try:
+            a_datetime = datetime.strptime(string_datetime, datetime_pattern)
+        except Exception as e:
+            # print("ERRO ao formatar string como DATA:", string_datetime, "DETALHES:", e, flush=True)
+            pass
+        else:
+            return (a_datetime.date())
 
-        if a_datetime is None:
-            print("ERRO ao formatar string como DATA:", string_datetime, flush=True)
+    if a_datetime is None:
+        print("ERRO ao formatar string como DATA:", string_datetime, flush=True)
 
-            return (a_datetime)
+        return (None)
 
 def __processa_documento_json(document, atributo_texto, atributo_data, data_minima, data_maxima, blacklist_extra,
                               explicacao, tipo_combinacao):
@@ -384,6 +379,7 @@ def main():
                 blacklist_extra = []
                 termos = args.blacklist_text.split(",")
                 for termo in termos:
+                    termo = termo.strip() ### remove espaços que podem existir entre a vírgula e o termo
                     blacklist_extra.append(termo)
             else:
                 blacklist_extra = None

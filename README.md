@@ -25,10 +25,10 @@ $ python -m spacy download pt_core_news_lg
 
 ```
 identificacao.py  [--texto <TEXTO>] 
-                  [--lista <LISTA ENTRE ASPAS>] 
+                  [--lista <LISTA JSON NO FORMATO TEXTO>] 
                   [-txt] [--corpus <CAMINHO CORPUS>]
                   [--atributo-texto <NOME ATRIBUTO>] [--atributo-data <NOME ATRIBUTO>] 
-                  [--data-min <YYYY-MM-DD>] [--data-max  <YYYY-MM-DD>]
+                  [--data-minima <DD-MM-YYYY>] [--data-maxima  <DD-MM-YYYY>]
                   [--blacklist-texto <TERMOS BLACKLIST>] [--blacklist-arquivo <CAMINHO ARQUIVO>] 
                   [-explicacao]
 ```
@@ -40,14 +40,14 @@ identificacao.py --texto <TEXTO>
 
 #### Como identificar progaganda em um corpus JSON
 ```
-identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-min <YYYY-MM-DD> --data-max <YYYY-MM-DD> --corpus <CAMINHO CORPUS>
+identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-minima <DD-MM-YYYY> --data-maxima <DD-MM-YYYY> --corpus <CAMINHO CORPUS>
 ```
 
 O método requer que o corpus tenha um documento no formato JSON por linha 
 
 #### Como identificar progaganda em uma lista de JSON
 ```
-identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-min <YYYY-MM-DD> --data-max <YYYY-MM-DD> --lista <LISTA JSON NO FORMATO TEXTO>
+identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-minima <DD-MM-YYYY> --data-maxima <DD-MM-YYYY> --lista <LISTA JSON NO FORMATO TEXTO>
 ```
 
 A lista de json deve ser uma lista de dicionários convertida para o formato string. Ou seja, o valor precisa estar entre aspas.
