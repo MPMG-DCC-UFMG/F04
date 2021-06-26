@@ -25,12 +25,17 @@ $ python -m spacy download pt_core_news_lg
 
 ```
 identificacao.py  [--texto <TEXTO>] 
-                  [--lista <LISTA JSON NO FORMATO TEXTO>] 
-                  [-txt] [--corpus <CAMINHO CORPUS>]
-                  [--atributo-texto <NOME ATRIBUTO>] [--atributo-data <NOME ATRIBUTO>] 
-                  [--data-minima <DD-MM-YYYY>] [--data-maxima  <DD-MM-YYYY>]
-                  [--blacklist-texto <TERMOS BLACKLIST>] [--blacklist-arquivo <CAMINHO ARQUIVO>] 
+                  [--lista <LISTA JSON (DUMP)>] 
+                  [-txt][-json]
+                  [--arquivo <CAMINHO ARQUIVO>]
+                  [--atributo-texto <NOME ATRIBUTO>]
+                  [--atributo-data <NOME ATRIBUTO>] 
+                  [--data-inicial <DD-MM-YYYY>] 
+                  [--data-final <DD-MM-YYYY>]
+                  [--blacklist-texto <TERMOS BLACKLIST>] 
+                  [--blacklist-arquivo <CAMINHO ARQUIVO>] 
                   [-explicacao]
+
 ```
 
 #### Como identificar progaganda em um texto único
@@ -38,26 +43,26 @@ identificacao.py  [--texto <TEXTO>]
 identificacao.py --texto <TEXTO>
 ```
 
-#### Como identificar progaganda em um corpus JSON
+#### Como identificar progaganda em um arquivo JSON
 ```
-identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-minima <DD-MM-YYYY> --data-maxima <DD-MM-YYYY> --corpus <CAMINHO CORPUS>
+identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-inicial <DD-MM-YYYY> --data-final <DD-MM-YYYY> --arquivo <CAMINHO ARQUIVO>
 ```
 
-O método requer que o corpus tenha um documento no formato JSON por linha 
+O método requer que o arquivo tenha um documento no formato JSON por linha 
 
 #### Como identificar progaganda em uma lista de JSON
 ```
-identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-minima <DD-MM-YYYY> --data-maxima <DD-MM-YYYY> --lista <LISTA JSON NO FORMATO TEXTO>
+identificacao.py --atributo-texto <NOME ATRIBUTO> --atributo-data <NOME ATRIBUTO> --data-inicial <DD-MM-YYYY> --data-final <DD-MM-YYYY> --lista <LISTA JSON NO FORMATO TEXTO>
 ```
 
 A lista de json deve ser uma lista de dicionários convertida para o formato string. Ou seja, o valor precisa estar entre aspas.
 
-#### Como identificar progaganda em um corpus de texto simples
+#### Como identificar progaganda em um arquivo de texto simples
 ```
-identificacao.py -txt --corpus <CAMINHO CORPUS>
+identificacao.py -txt --arquivo <CAMINHO ARQUIVO>
 ```
 
-O método requer que o corpus tenha um texto por linha e que a filtragem por datas tenha sido feita previamente. 
+O método requer que o arquivo tenha um texto por linha e que a filtragem por datas tenha sido feita previamente. 
 
 #### Como informar termos adicionais para a blacklist
 ```

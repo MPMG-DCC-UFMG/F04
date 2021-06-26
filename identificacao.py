@@ -304,7 +304,7 @@ def main():
 
         '''
         ###############
-        ARGUMENTOS OBRIGATÓRIOS
+        PARAMETROS OBRIGATÓRIOS
         ###############
         '''
         #### texto único --- OU
@@ -314,7 +314,7 @@ def main():
         parser.add_argument('--lista', '-l',  dest='json_list', type=str, default=False,
                             help='Lista no formato JSON com os documentos.')
         #### corpus JSON ou TXT (por padrão, o corpus é JSON)
-        parser.add_argument('--corpus', dest='filename_corpus', type=str, default=False,
+        parser.add_argument('--arquivo', dest='filename_corpus', type=str, default=False,
                             help='Caminho do arquivo que contem o corpus.')
         #### --- Se corpus tipo JSON:
         # parser.add_argument('-json', dest='corpus_json', type=str, default=False,
@@ -323,14 +323,18 @@ def main():
                             help='Nome do atributo no JSON que contem o texto.')
         parser.add_argument('--atributo-data', '-ad', dest='attribute_name_date', type=str, default=False,
                             help='Nome do atributo no JSON que contem o texto.')
-        parser.add_argument('--data-minima', '-dmin',  dest='date_min', type=str, default=False,
-                            help='Data minima para a filtragem (limite inferior).')
-        parser.add_argument('--data-maxima', '-dmax', dest='date_max', type=str, default=False,
-                            help='Data maxima para a filtragem (limite superior).')
+        parser.add_argument('--data-inicial', '-dmin',  dest='date_min', type=str, default=False,
+                            help='Data inicial para a filtragem (limite inferior).')
+        parser.add_argument('--data-final', '-dmax', dest='date_max', type=str, default=False,
+                            help='Data final para a filtragem (limite superior).')
 
         #### --- Se corpus tipo TXT:
         parser.add_argument('-txt',action='store_true', dest='corpus_txt', default=False,
                             help='Declara que tipo do corpus como TXT')
+
+        #### --- Se corpus tipo JSON:
+        parser.add_argument('-json', action='store_true', dest='corpus_json', default=False,
+                            help='Declara que tipo do corpus como JSON')
 
         ### ---- Opção para imprimir a explicação do score
         parser.add_argument('-explicacao', action='store_true', dest='explicacao_metodo', default=False,
@@ -338,7 +342,7 @@ def main():
 
         '''
         ###############
-        ARGUMENTOS OPCIONAIS
+        PARAMETROS OPCIONAIS
         ###############
         '''
         parser.add_argument('--blacklist-arquivo', '-ba', dest='filename_blacklist', type=str, default=False,
@@ -351,15 +355,33 @@ def main():
 
         '''
         ###############
-        PROCESSA ARGUMENTOS DE PROGRAMA E VERIFICA ERROS
+        PROCESSA PARAMETROS DE PROGRAMA E VERIFICA ERROS
         ###############
         '''
         args = parser.parse_args()
 
-        if (args.corpus_txt is False and (args.filename_corpus or args.json_list) and (args.attribute_name_text is False or args.attribute_name_date is False or
-                                             args.date_min is False or args.date_max is False)):
-            nome_argumento = "--corpus" if args.filename_corpus else "--lista"
-            parser.error('O argumento {} exige que seja informado --atributo-texto, --atributo-data, --data-minima e --data-maxima'.format(nome_argumento))
+        ### --- Verifica se foi informado um parametro de entrada
+        if (args.text is None and args.filename_corpus is None and  args.json_list is None):
+            parser.error('Metodo precisa de um tipo de entrada (--texto, --lista, --arquivo')
+        ### --- Verifica parâmetro de arquivo e formato de arquivo
+        elif (args.filename_corpus and (args.corpus_json is False or args.corpus_txt is False)):
+            parser.error(
+                'O parametro --arquivo exige que seja informado o formato da entrada (-txt ou -json)')
+        ### --- Verifica se entrada em formato JSON possui todos os parâmetros obrigatórios
+        elif ((args.filename_corpus and args.corpus_json) or args.json_list and (args.attribute_name_text is None or args.attribute_name_date is None or
+                                             args.date_min is None or args.date_max is None)):
+            nome_parametro = "--arquivo" if args.filename_corpus else "--lista"
+            parser.error('O parametro {} exige que seja informado --atributo-texto, --atributo-data, --data-inicial e --data-final'.format(nome_parametro))
+        ### --- Verifica exclusao mútua de parâmetros
+        elif (args.text and (args.json_list or args.corpus_json) or
+                          args.json_list and (args.text or args.corpus_json ) or
+                          args.corpus_json and (args.text or args.json_list) or
+                          args.corpus_txt and args.corpus_json or
+                          args.filename_blacklist and args.blacklist_text
+              ):
+            parser.error(
+                'Nao e possivel passar mais de um parametro de tipo de entrada, formato de entrada ou blacklist adicional.')
+        ### --- Se tudo estiver ok, prossiga
         else:
             ### Carrega arquivos de configuração na memória
             __carrega_arquivos_de_configuracao()
@@ -418,7 +440,7 @@ def main():
                 with open(args.filename_corpus, "r", encoding="utf-8") as file_input:
                     for document in file_input:
                         #### --- Ou seja, Se corpus tipo JSON:
-                        if args.corpus_txt is False:
+                        if args.corpus_json is True:
                             document = json.loads(document)
                             __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
                                                   atributo_data=args.attribute_name_date,
