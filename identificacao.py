@@ -360,101 +360,101 @@ def main():
         '''
         args = parser.parse_args()
 
-        ### --- Verifica se foi informado um parametro de entrada
-        if (args.text is None and args.filename_corpus is None and  args.json_list is None):
-            parser.error('Metodo precisa de um tipo de entrada (--texto, --lista, --arquivo')
-        ### --- Verifica parâmetro de arquivo e formato de arquivo
-        elif (args.filename_corpus and (args.corpus_json is False or args.corpus_txt is False)):
-            parser.error(
-                'O parametro --arquivo exige que seja informado o formato da entrada (-txt ou -json)')
-        ### --- Verifica se entrada em formato JSON possui todos os parâmetros obrigatórios
-        elif ((args.filename_corpus and args.corpus_json) or args.json_list and (args.attribute_name_text is None or args.attribute_name_date is None or
-                                             args.date_min is None or args.date_max is None)):
-            nome_parametro = "--arquivo" if args.filename_corpus else "--lista"
-            parser.error('O parametro {} exige que seja informado --atributo-texto, --atributo-data, --data-inicial e --data-final'.format(nome_parametro))
-        ### --- Verifica exclusao mútua de parâmetros
-        elif (args.text and (args.json_list or args.corpus_json) or
-                          args.json_list and (args.text or args.corpus_json ) or
-                          args.corpus_json and (args.text or args.json_list) or
-                          args.corpus_txt and args.corpus_json or
-                          args.filename_blacklist and args.blacklist_text
-              ):
-            parser.error(
-                'Nao e possivel passar mais de um parametro de tipo de entrada, formato de entrada ou blacklist adicional.')
-        ### --- Se tudo estiver ok, prossiga
-        else:
-            ### Carrega arquivos de configuração na memória
-            __carrega_arquivos_de_configuracao()
+        # ### --- Verifica se foi informado um parametro de entrada
+        # if (args.text is None and args.filename_corpus is None and  args.json_list is None):
+        #     parser.error('Metodo precisa de um tipo de entrada (--texto, --lista, --arquivo')
+        # ### --- Verifica parâmetro de arquivo e formato de arquivo
+        # elif (args.filename_corpus and (args.corpus_json is False or args.corpus_txt is False)):
+        #     parser.error(
+        #         'O parametro --arquivo exige que seja informado o formato da entrada (-txt ou -json)')
+        # ### --- Verifica se entrada em formato JSON possui todos os parâmetros obrigatórios
+        # elif ((args.filename_corpus and args.corpus_json) or args.json_list and (args.attribute_name_text is None or args.attribute_name_date is None or
+        #                                      args.date_min is None or args.date_max is None)):
+        #     nome_parametro = "--arquivo" if args.filename_corpus else "--lista"
+        #     parser.error('O parametro {} exige que seja informado --atributo-texto, --atributo-data, --data-inicial e --data-final'.format(nome_parametro))
+        # ### --- Verifica exclusao mútua de parâmetros
+        # elif (args.text and (args.json_list or args.corpus_json) or
+        #                   args.json_list and (args.text or args.corpus_json ) or
+        #                   args.corpus_json and (args.text or args.json_list) or
+        #                   args.corpus_txt and args.corpus_json or
+        #                   args.filename_blacklist and args.blacklist_text
+        #       ):
+        #     parser.error(
+        #         'Nao e possivel passar mais de um parametro de tipo de entrada, formato de entrada ou blacklist adicional.')
+        # ### --- Se tudo estiver ok, prossiga
+        # else:
+        ### Carrega arquivos de configuração na memória
+        __carrega_arquivos_de_configuracao()
 
-            ### Define a técnica de combinação padrão
-            tipo_combinacao = TIPO_COMBINACAO_LINEAR if args.tipo_combinacao is False else args.tipo_combinacao
+        ### Define a técnica de combinação padrão
+        tipo_combinacao = TIPO_COMBINACAO_LINEAR if args.tipo_combinacao is False else args.tipo_combinacao
 
-            explicacao = args.explicacao_metodo
+        explicacao = args.explicacao_metodo
 
-            ### Verifica se blacklist extra foi passada como parametro
-            if args.filename_blacklist:
-                blacklist_extra = []
-                with open(args.filename_blacklist, "r", encoding="utf-8") as file_input:
-                    for termo in file_input:
-                        blacklist_extra.append(termo)
-            elif args.blacklist_text:
-                blacklist_extra = []
-                termos = args.blacklist_text.split(",")
-                for termo in termos:
-                    termo = termo.strip() ### remove espaços que podem existir entre a vírgula e o termo
+        ### Verifica se blacklist extra foi passada como parametro
+        if args.filename_blacklist:
+            blacklist_extra = []
+            with open(args.filename_blacklist, "r", encoding="utf-8") as file_input:
+                for termo in file_input:
                     blacklist_extra.append(termo)
-            else:
-                blacklist_extra = None
+        elif args.blacklist_text:
+            blacklist_extra = []
+            termos = args.blacklist_text.split(",")
+            for termo in termos:
+                termo = termo.strip() ### remove espaços que podem existir entre a vírgula e o termo
+                blacklist_extra.append(termo)
+        else:
+            blacklist_extra = None
 
-            '''
-            DETERMINA TIPO DE ENTRADA
-            '''
-            #### texto único
-            if args.text:
-                __imprime_resultado(text=args.text,blacklist_extra=blacklist_extra, explicacao=explicacao,
-                                    tipo_combinacao=tipo_combinacao)
+        '''
+        DETERMINA TIPO DE ENTRADA
+        '''
+        #### texto único
+        if args.text:
+            __imprime_resultado(text=args.text,blacklist_extra=blacklist_extra, explicacao=explicacao,
+                                tipo_combinacao=tipo_combinacao)
 
-            #### lista de JSON
-            elif args.json_list:
-                import ast
-                json_list = ast.literal_eval(args.json_list.replace("\n", ""))
+        #### lista de JSON
+        elif args.json_list:
+            import ast
+            json_list = ast.literal_eval(args.json_list.replace("\n", ""))
 
+            data_minima = __get_objeto_data(string_datetime=args.date_min, only_date=True)
+            data_maxima = __get_objeto_data(string_datetime=args.date_max, only_date=True)
+
+            for document in json_list:
+                __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
+                                          atributo_data=args.attribute_name_date,
+                                          data_minima=data_minima, data_maxima=data_maxima,
+                                          blacklist_extra=blacklist_extra, explicacao=explicacao,
+                                          tipo_combinacao=tipo_combinacao)
+
+        #### corpus JSON ou TXT
+        elif args.filename_corpus:
+            data_minima = None
+            data_maxima = None
+            if args.corpus_txt is False:
                 data_minima = __get_objeto_data(string_datetime=args.date_min, only_date=True)
                 data_maxima = __get_objeto_data(string_datetime=args.date_max, only_date=True)
 
-                for document in json_list:
-                    __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
+            with open(args.filename_corpus, "r", encoding="utf-8") as file_input:
+                for document in file_input:
+                    #### --- Ou seja, Se corpus tipo JSON:
+                    if args.corpus_json is True:
+                        document = json.loads(document)
+                        __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
                                               atributo_data=args.attribute_name_date,
                                               data_minima=data_minima, data_maxima=data_maxima,
-                                              blacklist_extra=blacklist_extra, explicacao=explicacao,
-                                              tipo_combinacao=tipo_combinacao)
+                                                  blacklist_extra=blacklist_extra, explicacao=explicacao,
+                                                  tipo_combinacao=tipo_combinacao)
 
-            #### corpus JSON ou TXT
-            elif args.filename_corpus:
-                data_minima = None
-                data_maxima = None
-                if args.corpus_txt is False:
-                    data_minima = __get_objeto_data(string_datetime=args.date_min, only_date=True)
-                    data_maxima = __get_objeto_data(string_datetime=args.date_max, only_date=True)
+                    #### --- Ou seja, Se corpus tipo TXT:
+                    else:
+                        __imprime_resultado(text=document, blacklist_extra=blacklist_extra, explicacao=explicacao,
+                                            tipo_combinacao=tipo_combinacao)
 
-                with open(args.filename_corpus, "r", encoding="utf-8") as file_input:
-                    for document in file_input:
-                        #### --- Ou seja, Se corpus tipo JSON:
-                        if args.corpus_json is True:
-                            document = json.loads(document)
-                            __processa_documento_json(document=document, atributo_texto=args.attribute_name_text,
-                                                  atributo_data=args.attribute_name_date,
-                                                  data_minima=data_minima, data_maxima=data_maxima,
-                                                      blacklist_extra=blacklist_extra, explicacao=explicacao,
-                                                      tipo_combinacao=tipo_combinacao)
-
-                        #### --- Ou seja, Se corpus tipo TXT:
-                        else:
-                            __imprime_resultado(text=document, blacklist_extra=blacklist_extra, explicacao=explicacao,
-                                                tipo_combinacao=tipo_combinacao)
-
-            else:
-                print("Nao foi possivel processar sua requisicao.")
+        else:
+            print("Nao foi possivel processar sua requisicao.")
 
 
     except Exception as e:
