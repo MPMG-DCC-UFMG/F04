@@ -130,7 +130,7 @@ class KafkaInteractor:
 
         """        
         timeout_batch = int(self.__timeouts['timeout_batch'])
-        message_batch = consumer.poll(1000)
+        message_batch = consumer.poll(timeout_batch*1000)
 
         polled_messages = list()
         for topic_partition, partition_batch in message_batch.items():
