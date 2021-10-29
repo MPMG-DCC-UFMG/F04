@@ -1,0 +1,56 @@
+Extraia o diretório para uma pasta da sua preferência.
+
+COM O DOCKER:
+1 - Instale o docker e crie a imagem do container a partir do dockerfile com o seguinte comando:
+	
+	sudo docker build . -t transcritor_mp_v1 
+
+É importante salientar que o prefixo do nome da imagem deve ser "transcritor_mp" para o shell encontrar a imagem.
+
+2 - Coloque o arquivo .json de autenticação dentro da pasta 'Authenticators'
+
+3 - Conceda permissões especiais para o shell, através do comando:
+
+	chmod +x executar_transcritor.sh
+
+O programa permite dois modos de execução. O primeiro é denominado de 'tsi', acrônimo para: "transcribe single image", e aceita o caminho completo e o nome da imagem como argumento. O segundo modo é denominado de 'tef', acrônimo para: "transcribe entire folder", e aceita o caminho completo de um diretório como argumento. O comando 'tef' percorre os arquivos presentes no diretório, seleciona aqueles que terminam em .jpg, .jpeg ou .png, e os transcreve. Dessa forma, para executar o programa, rode um dos dois comandos:
+
+
+	sudo ./executar_transcritor.sh tsi CAMINHO_E_NOME_DA_IMAGEM
+
+	ou
+
+	sudo ./executar_transcritor.sh tef CAMINHO_DA_PASTA
+
+Exemplos concretos:
+
+	sudo ./executar_transcritor.sh tsi "/home/abc/Documents/imagens/foto.png"
+
+	sudo ./executar_transcritor.sh tef "/home/abc/Pictures/all_images/"
+
+A saída dos arquivos estarão dentro da pasta 'output'.
+
+Observações: 
+
+1º. É altamente recomendado usar o "executar_transcritor.sh" para a execução do programa com o docker, considerando a não trivialidade das montagens de volumes para o acesso do container contendo o programa aos diversos arquivos necessários para a sua execução. Caso se queira mudar o caminho de saída dos jsons ou da pasta que se localiza os autenticadores, entre no .sh e altere as variáveis com prefixo "ORIG".
+
+2º. É importante sempre passar os caminhos completos como argumentos, já que um volume precisa ser montado no local para o container ter acesso a(s) imagem(ns).
+
+SEM O DOCKER
+1 - O programa aceita 4 argumentos. O primeiro é a pasta que se encontra os arquivos de autenticação, o segundo é a pasta de saída, o terceiro é o modo de execução(tsi ou tef) e o quarto é o indicador para as imagens.
+
+Dessa maneira, para executar o programa sem o docker, execute o seguinte comando(A referência é o local se localiza o dockerfile):
+
+	python3 transcriber/main.py (tsi ou tef)  CAMINHO_DA_AUTENTICAÇÃO CAMINHO_DE_SAÍDA (CAMINHO_DA_IMAGEM ou CAMINHO_DO_ARQUIVO)
+	
+Observe o exemplo de execução
+
+	python3 transcriber/main.py tsi ~/authenticators/ ~/output/ "/home/mmra/Documents/imagens/foto.png"
+	
+	
+-------------------------------------
+Para executar o transcritor com o KAFKA.
+Instale o docker.
+Execute com o ./executar_transcritor_kafka.sh, passando o caminho do arquivo de configuração e a localização do caminho para a montagem dos volumes para o acesso das fotos.
+No caso da infraestrutura do MPMG, é necessário
+

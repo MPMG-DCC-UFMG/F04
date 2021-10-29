@@ -1,0 +1,32 @@
+Tutorial: Como conseguir o arquivo de autenticação para o uso do OCR:
+
+1. Entre no link https://console.cloud.google.com/home/ e faça login com alguma conta do Google.
+
+2. Antes de criar o documento autenticável, é preciso ativar a API 'Cloud Vision' na conta logada. Caso esse processo já tenha sido realizado, pular para o passo 3. Para a ativação da API, siga os passos abaixo:
+
+	2.1) Clique no menu de navegação, passe o cursor em cima da categoria 'APIs e serviços', e selecione a opção 'Painel'.
+
+ 	2.2) Clique na opção 'ATIVAR APIS E SERVIÇOS'.
+
+	2.3) Digite 'Cloud Vision' na barra de busca.
+
+	2.4) Clique no item 'Cloud Vision API'. Após entrar na página referente, selecione a opção 'ATIVAR'.
+
+3. Após essa etapa, é necessário criar uma conta de serviço dentro da conta Google logada. Caso já exista uma conta de serviço vinculada à conta Google, siga para o passo 4. Para criar a conta de serviço, siga os passos abaixo:
+
+	3.1) Clique no menu de navegação, passe o cursor em cima da categoria 'IAM e administrador', e selecione a opção 'Contas de serviço'.
+	
+	3.2) Selecione a opção 'CRIAR CONTA DE SERVIÇO'.
+	
+	3.2) Preencha todos os campos requeridos no formulário.
+	
+4. Por fim, gere o documento de autenticação da seguinte forma:
+	
+	4.1) Clique no menu de navegação, passe o cursor em cima da categoria 'IAM e administrador', e selecione a opção 'Contas de serviço'.
+	
+	4.2) Na tabela que contém a lista de contas de serviço, clique no menu de 'ações' de uma conta de serviço, e na opção 'Gerenciar chaves'.
+	
+	4.3) Clique no sub-menu 'Adicionar Chave', e após isso clique na opção 'Criar nova chave'. Selecione o tipo de chave 'JSON', e crie. Faça o 		download do documento.
+	
+	
+É importante salientar que antes da utilização do componente de OCR desenvolvido, é necessário colocar o documento baixado na pasta 'authenticators' do diretório do módulo. Além disso, é requerido o cadastro de ao menos um cartão de crédito válido na conta do Google que o procedimento foi feito.
