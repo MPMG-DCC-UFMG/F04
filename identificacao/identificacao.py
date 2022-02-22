@@ -107,7 +107,7 @@ class IdentificacaoF04(KafkaInteractor):
                             motive = f"Erro: Parâmetros do modelo são inválidos"
                             destined_message = json.loads(copy.deepcopy(final_message[1]))
                             destined_message['erro'] = motive
-                            self.send_to_error(json.dumps(destined_message), final_message[0], get_key=True)
+                            self.send_to_error(json.dumps(destined_message, ensure_ascii=False), final_message[0], get_key=True)
                         except:
                             pass
 
@@ -124,7 +124,7 @@ class IdentificacaoF04(KafkaInteractor):
                 motive = f"Erro: {e}"
                 destined_message = json.loads(copy.deepcopy(final_message[1]))
                 destined_message['erro'] = motive
-                self.send_to_error(json.dumps(destined_message), final_message[0], get_key=True)
+                self.send_to_error(json.dumps(destined_message, ensure_ascii=False), final_message[0], get_key=True)
             except:
                 pass
 
@@ -241,13 +241,13 @@ class IdentificacaoF04(KafkaInteractor):
                 motive = f"Erro: {mensagem_erro}"
                 destined_message = json.loads(copy.deepcopy(destined_message[1]))
                 destined_message['erro'] = motive
-                self.send_to_error(json.dumps(destined_message), destined_message[0], get_key=True)
+                self.send_to_error(json.dumps(destined_message, ensure_ascii=False), destined_message[0], get_key=True)
             else:
                 #print("Mensagem nao tem erro", flush=True)
 
                 destined_message['escore_propaganda_antecipada'] = str(score)
 
-                my_json_obj = json.dumps(destined_message)
+                my_json_obj = json.dumps(destined_message, ensure_ascii=False)
 
                 #print("Gerei o my_json_obj", flush=True)
 
@@ -271,7 +271,7 @@ class IdentificacaoF04(KafkaInteractor):
             motive = f"Erro: {e}"
             destined_message = json.loads(copy.deepcopy(destined_message[1]))
             destined_message['erro'] = motive
-            self.send_to_error(json.dumps(destined_message), destined_message[0], get_key=True)
+            self.send_to_error(json.dumps(destined_message, ensure_ascii=False), destined_message[0], get_key=True)
 
 
     def send_to_trash(self, message, key, get_key=False, verbose=False):
@@ -283,7 +283,9 @@ class IdentificacaoF04(KafkaInteractor):
         date = datetime.now()
 
         # TODO enviar para a fila de erro ao invés de descarte
-        if not common.publish_kafka_message(self._KafkaInteractor__producer, self._KafkaInteractor__write_topics['discard_topic_name'], message,key, get_key):
+        if not common.publish_kafka_message(self._KafkaInteractor__producer,
+                                            self._KafkaInteractor__write_topics['discard_topic_name'],
+                                            message,key, get_key):
             if verbose: print(common.red_string(f"[{date}] Envio da mensagem com para o tópico de lixo falhou."))
 
 
@@ -297,7 +299,7 @@ class IdentificacaoF04(KafkaInteractor):
         if trash_motive != None:
             new_message['motivo_descarte'] = trash_motive
 
-        new_message = json.dumps(new_message)
+        new_message = json.dumps(new_message, ensure_ascii=False)
 
         
         return new_message
