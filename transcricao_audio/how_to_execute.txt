@@ -1,0 +1,9 @@
+how_to:
+1 - Nessa mesma pasta
+
+	sudo docker build . -t transcricao_audio_mp_v1
+
+2 - Após o termino do processo executar 
+
+	chmod +x executar_transcritor_audio_kafka.sh
+	sudo ./executar_transcritor_audio_kafka.sh

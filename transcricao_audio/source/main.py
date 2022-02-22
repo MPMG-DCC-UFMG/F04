@@ -2,20 +2,16 @@
 import time
 import os
 import json
+import sys
 
 from transcricao_audio import transc
 import common_functions as common
 
 SLEEP_TIME = 1
-PATH = '/config/configurations.json'
 
 def main():
-    
-  if not os.path.isfile(PATH) or not PATH.endswith('.json'):
-    raise Exception("Não foi possível abrir o arquivo de configuração. Favor checar o caminho e a extensão do arquivo.")
   
-  with open(PATH, 'r') as f:
-    jason = json.load(f)
+  jason = json.loads(sys.argv[1])
 
   transc_object = transc(jason)
   read_topics = transc_object.read_topics
