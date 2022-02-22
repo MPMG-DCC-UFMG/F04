@@ -33,14 +33,14 @@ class IdentificacaoF04(KafkaInteractor):
     '''
     def is_parametros_validos(self):
         metodo_selecionado = self.__configuration_file["metodo_selecionado"]
-        print(metodo_selecionado, f"modelo_{metodo_selecionado}", self.__configuration_file.keys())
+        #print(metodo_selecionado, f"modelo_{metodo_selecionado}", self.__configuration_file.keys())
 
         modelo_info = self.__configuration_file[f"modelo_{metodo_selecionado}"]
 
-        print("Dados do modelo selecionado: ", modelo_info)
+        #print("Dados do modelo selecionado: ", modelo_info)
 
         if metodo_selecionado not in METODOS_POSSIVEIS:
-            print("Parametros invalidos: metodo_selecionado not in METODOS_POSSIVEIS")
+            #print("Parametros invalidos: metodo_selecionado not in METODOS_POSSIVEIS")
             return False
 
         if metodo_selecionado == "preliminar":
@@ -48,8 +48,8 @@ class IdentificacaoF04(KafkaInteractor):
                 # Mudança de nome específica para o Docker. Substitui somente a primeira ocorrência do caminho externo
                 filename = filename.replace(self.__outside_docker_models_path, self.__inside_docker_models_path, 1)
                 if os.path.isfile(filename) is False:
-                    print("Parametros invalidos: metodo_selecionado == preliminar nao tem arquivos validos")
-                    print(filename, "nao existe")
+                    #print("Parametros invalidos: metodo_selecionado == preliminar nao tem arquivos validos")
+                    #print(filename, "nao existe")
                     return False
 
         if metodo_selecionado == "naive_bayes":
@@ -57,7 +57,7 @@ class IdentificacaoF04(KafkaInteractor):
                 # Mudança de nome específica para o Docker. Substitui somente a primeira ocorrência do caminho externo
                 filename = filename.replace(self.__outside_docker_models_path, self.__inside_docker_models_path, 1)
                 if os.path.isfile(filename) is False:
-                    print("Parametros invalidos: metodo_selecionado == naive_bayes nao tem arquivos validos")
+                    #print("Parametros invalidos: metodo_selecionado == naive_bayes nao tem arquivos validos")
                     return False
 
         if metodo_selecionado in METODOS_DEEP_LEARNING:
@@ -65,7 +65,7 @@ class IdentificacaoF04(KafkaInteractor):
                 # Mudança de nome específica para o Docker. Substitui somente a primeira ocorrência do caminho externo
                 filename = filename.replace(self.__outside_docker_models_path, self.__inside_docker_models_path, 1)
                 if os.path.isfile(filename) is False:
-                    print("Parametros invalidos: metodo_selecionado in METODOS_DEEP_LEARNING nao tem arquivos validos")
+                    #print("Parametros invalidos: metodo_selecionado in METODOS_DEEP_LEARNING nao tem arquivos validos")
                     return False
 
         return True
@@ -93,14 +93,14 @@ class IdentificacaoF04(KafkaInteractor):
                     parametros_validos = self.is_parametros_validos()
 
                     if parametros_validos is True:
-                        print(">>> os parametros SAO parametros_validos.", flush=True)
+                        #print(">>> os parametros SAO parametros_validos.", flush=True)
                         self.__escreve_score_metodo(final_message, get_key, verbose)
 
                         consumer.commit({topic_partition: OffsetAndMetadata(message.offset + 1, "no metadata")})
 
                         empty = False
                     else:
-                        print(">>> os parametros NAO SAO parametros_validos.", flush=True)
+                        #print(">>> os parametros NAO SAO parametros_validos.", flush=True)
                         try:
                             consumer.commit({topic_partition: OffsetAndMetadata(message.offset + 1, "no metadata")})
                             consumer.close()
@@ -138,18 +138,18 @@ class IdentificacaoF04(KafkaInteractor):
 
         destined_message['metodo_selecionado'] = self.__metodo_selecionado
 
-        print(">>> self.__metodo_selecionado = ", self.__metodo_selecionado)
+        #print(">>> self.__metodo_selecionado = ", self.__metodo_selecionado)
 
-        print(">>> destined_message = ", destined_message, flush=True)
+        #print(">>> destined_message = ", destined_message, flush=True)
 
         try:
             if self.__metodo_selecionado == "preliminar":
-                print(">>> entrei em self.__metodo_selecionado == preliminar:", flush=True)
+                #print(">>> entrei em self.__metodo_selecionado == preliminar:", flush=True)
 
                 from metodo_preliminar import MetodoPreliminar
                 info_metodo = self.__configuration_file["modelo_preliminar"]
 
-                print(">>> passei por info_metodo  = self.__configuration_file", info_metodo, flush=True)
+                #print(">>> passei por info_metodo  = self.__configuration_file", info_metodo, flush=True)
 
                 # destined_message["caminho_arquivo_reforco"] = info_metodo["caminho_arquivo_reforco"]
                 # destined_message["caminho_arquivo_pesos"] = info_metodo["caminho_arquivo_pesos"]
@@ -164,7 +164,7 @@ class IdentificacaoF04(KafkaInteractor):
 
                 score, mensagem_erro = metodoPreliminar.get_score(texto=destined_message["texto"])
 
-                print("peguei o score: ", score, mensagem_erro, flush=True)
+                #print("peguei o score: ", score, mensagem_erro, flush=True)
             else:
                 # from metodo_preliminar import MetodoPreliminar
                 # info_metodo = self.__configuration_file["modelo_preliminar"]
@@ -189,18 +189,18 @@ class IdentificacaoF04(KafkaInteractor):
                 # print("peguei o score do metodoPreliminar: ", score, mensagem_erro, flush=True)
 
 
-                print("Comecando o import metodo_aprendizado_maquina...", flush=True)
+                #print("Comecando o import metodo_aprendizado_maquina...", flush=True)
                 from metodo_aprendizado_maquina import MetodoAprendizadoMaquina
-                print("Finalizando o import metodo_aprendizado_maquina...", flush=True)
+                #print("Finalizando o import metodo_aprendizado_maquina...", flush=True)
 
-                print(str("modelo_"+self.__metodo_selecionado), f"modelo_{self.__metodo_selecionado}" in self.__configuration_file, flush=True)
+                #print(str("modelo_"+self.__metodo_selecionado), f"modelo_{self.__metodo_selecionado}" in self.__configuration_file, flush=True)
 
                 info_metodo = self.__configuration_file[f"modelo_{self.__metodo_selecionado}"]
 
-                print("entrei em NAO preliminar: ", info_metodo, flush=True)
+                #print("entrei em NAO preliminar: ", info_metodo, flush=True)
 
                 if self.__metodo_selecionado == "naive_bayes":
-                    print("entrei em self.__metodo_selecionado == naive_bayes:", flush=True)
+                    #print("entrei em self.__metodo_selecionado == naive_bayes:", flush=True)
                     caminho_arquivo_modelo = self.__get_inside_docker_filename(info_metodo["caminho_arquivo_skl"])
                     caminho_arquivo_npy = None
                     caminho_arquivo_word2vec = None
@@ -220,19 +220,19 @@ class IdentificacaoF04(KafkaInteractor):
                     # destined_message["versao"] = info_metodo["versao"]
 
                 destined_message.update(info_metodo)
-                print("Vou criar o metodoAM", flush=True)
+                #print("Vou criar o metodoAM", flush=True)
                 metodoAM = MetodoAprendizadoMaquina(
                     nome_modelo=self.__metodo_selecionado,
                     caminho_arquivo_modelo=caminho_arquivo_modelo,
                     caminho_arquivo_npy=caminho_arquivo_npy,
                     caminho_arquivo_word2vec=caminho_arquivo_word2vec)
-                print("Criei o metodoAM", flush=True)
+                #print("Criei o metodoAM", flush=True)
 
                 score, mensagem_erro = metodoAM.get_score(texto=destined_message["texto"])
 
                 metodoAM = None
 
-                print("peguei o score do metodoAM: ", score, mensagem_erro, flush=True)
+                #print("peguei o score do metodoAM: ", score, mensagem_erro, flush=True)
 
 
             date = datetime.now()
@@ -243,20 +243,20 @@ class IdentificacaoF04(KafkaInteractor):
                 destined_message['erro'] = motive
                 self.send_to_error(json.dumps(destined_message), destined_message[0], get_key=True)
             else:
-                print("Mensagem nao tem erro", flush=True)
+                #print("Mensagem nao tem erro", flush=True)
 
                 destined_message['escore_propaganda_antecipada'] = str(score)
 
                 my_json_obj = json.dumps(destined_message)
 
-                print("Gerei o my_json_obj", flush=True)
+                #print("Gerei o my_json_obj", flush=True)
 
                 if not common.publish_kafka_message(self._KafkaInteractor__producer,
                                                 self._KafkaInteractor__write_topics['result_topic_name'],
                                                 my_json_obj,
                                                 message[0],
                                                 get_key):
-                    print("Passei do publish_kafka_message (nao enviei message)", flush=True)
+                    #print("Passei do publish_kafka_message (nao enviei message)", flush=True)
 
 
                     if verbose:

@@ -4,15 +4,15 @@ import sys
 import os
 from datetime import datetime
 
-print("Passei 1 em metodo_preliminar", flush=True)
+#print("Passei 1 em metodo_preliminar", flush=True)
 
 import re
-print("Passei 2 em metodo_preliminar", flush=True)
+#print("Passei 2 em metodo_preliminar", flush=True)
 import spacy
-print("Passei 3 em metodo_preliminar", flush=True)
+#print("Passei 3 em metodo_preliminar", flush=True)
 import json
 
-print("Passei 2 em metodo_preliminar", flush=True)
+#print("Passei 2 em metodo_preliminar", flush=True)
 
 import argparse
 import logging
@@ -22,11 +22,11 @@ from datetime import datetime
 
 from numpy import std
 
-print("Terminei de importar principais libs em metodo_preliminar", flush=True)
+#print("Terminei de importar principais libs em metodo_preliminar", flush=True)
 
 nlp = spacy.load("pt_core_news_sm")
 
-print("Terminei de importar spacy lib em metodo_preliminar", flush=True)
+#print("Terminei de importar spacy lib em metodo_preliminar", flush=True)
 
 PALAVRAS_REFORCO = []
 TERMOS_SELECIONADOS = {}
@@ -36,7 +36,7 @@ TIPO_COMBINACAO_LINEAR = "combinacao-linear"
 TIPO_COMBINACAO_MAXIMO = "maximo"
 TIPO_COMBINACAO_STD = "desvio-padrao"
 
-print("Terminei de importar metodo_preliminar", flush=True)
+#print("Terminei de importar metodo_preliminar", flush=True)
 
 class MetodoPreliminar:
     def __init__(self, caminho_arquivo_reforco, caminho_arquivo_pesos, caminho_arquivo_blacklist):

@@ -31,28 +31,28 @@ def red_string(mstr):
 def publish_kafka_message(producer_instance, topic_name, value, key=0, get_key=False):
 
     sent = False
-    print("O producer_instance", producer_instance, flush=True)
+    #print("O producer_instance", producer_instance, flush=True)
     try:
         if producer_instance is not None:
             try:
                 value_bytes = bytes(value, encoding='utf-8')
-                print("Gerei o value_bytes", flush=True)
+                #print("Gerei o value_bytes", flush=True)
 
                 if get_key == True:
                     key_bytes = bytes(key, encoding='utf-8')
-                    print("Passei pelo key_bytes", flush=True)
+                    #print("Passei pelo key_bytes", flush=True)
                     producer_instance.send(topic_name, key=key_bytes, value=value_bytes)
-                    print("Passei pelo send", flush=True)
+                    #print("Passei pelo send", flush=True)
                 else:
                     producer_instance.send(topic_name, value=value_bytes)
-                    print("Passei pelo send (sem chave)", flush=True)
+                    #print("Passei pelo send (sem chave)", flush=True)
 
                 # print("Vou dormir zZzZzZ", flush=True)
                 # time.sleep(10)
                 # print("Acordei!", flush=True)
 
                 producer_instance.flush()
-                print("Passei pelo  producer_instance.flush()", flush=True)
+                #print("Passei pelo  producer_instance.flush()", flush=True)
 
                 sent = True
             except Exception as ex:
@@ -209,7 +209,7 @@ class KafkaInteractor:
         for topic, net in self.read_topics.items():
             
             if net not in target_networks:
-                print(f'A ferramenta não processa mensagens da rede {net}. Excluindo entrada...')
+                #print(f'A ferramenta não processa mensagens da rede {net}. Excluindo entrada...')
                 exclude_list.append(topic)
                 continue
 

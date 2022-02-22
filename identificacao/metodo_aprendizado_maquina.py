@@ -1,13 +1,13 @@
 from utils.helpers import gen_data
 import gensim
-print("Passei pelo import gensim", flush=True)
+#print("Passei pelo import gensim", flush=True)
 from sklearn.feature_extraction.text import HashingVectorizer
 import joblib
-print("Passei pelo import joblib", flush=True)
+#print("Passei pelo import joblib", flush=True)
 from utils.text_processor import TextProcessor
-print("Passei pelo import TextProcessor", flush=True)
+#print("Passei pelo import TextProcessor", flush=True)
 from utils.political_classification import PoliticalClassification
-print("Passei pelo import PoliticalClassification", flush=True)
+#print("Passei pelo import PoliticalClassification", flush=True)
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 EMBEDDING_DIM = 300
@@ -15,7 +15,7 @@ MAX_SEQUENCE_LENGTH = 240
 import sys, os
 from datetime import datetime
 
-print("Terminei de importar metodo_aprendizado_maquina", flush=True)
+#print("Terminei de importar metodo_aprendizado_maquina", flush=True)
 
 class MetodoAprendizadoMaquina:
     def __init__(self, nome_modelo, caminho_arquivo_modelo, caminho_arquivo_npy, caminho_arquivo_word2vec):
@@ -32,12 +32,12 @@ class MetodoAprendizadoMaquina:
             NPY_FILE = self.__caminho_arquivo_npy  # Necessário apenas para a CNN ou Modelos de Deep Learning
             WORD2VEC_FILE = self.__caminho_arquivo_word2vec
 
-            print("Vou criar o tp", flush=True)
+            #print("Vou criar o tp", flush=True)
             tp = TextProcessor()
-            print("Criei o tp", flush=True)
+            #print("Criei o tp", flush=True)
             texts = [INPUT_TEXT]
             texts = tp.text_process(texts, text_only=True)
-            print("Passei pelo text_process", flush=True)
+            #print("Passei pelo text_process", flush=True)
             X = [INPUT_TEXT]
             Y = []
 
@@ -63,18 +63,18 @@ class MetodoAprendizadoMaquina:
 
                 pass
             elif MODEL in ['cnn', 'rnn', 'lstm', 'han']:
-                print("Vou entrar no PoliticalClassification", flush=True)
+                #print("Vou entrar no PoliticalClassification", flush=True)
                 pc = PoliticalClassification(MODEL_FILE, NPY_FILE, MAX_SEQUENCE_LENGTH)
-                print("Passei pelo PoliticalClassification", flush=True)
+                #print("Passei pelo PoliticalClassification", flush=True)
 
                 for text in texts:
-                    print("Processing text: {}".format(text), flush=True)
+                    #print("Processing text: {}".format(text), flush=True)
                     if MODEL == 'han':
                         Y.append(pc.is_political_prob_han(' '.join(text)))
                     else:
                         Y.append(pc.is_political_prob(' '.join(text)))
 
-                print("Passei do for texts", flush=True)
+                #print("Passei do for texts", flush=True)
 
             elif MODEL in ['svm', 'rforest', 'lregression', 'gboost']:
                 word2vec_model = gensim.models.KeyedVectors.load_word2vec_format(WORD2VEC_FILE,
