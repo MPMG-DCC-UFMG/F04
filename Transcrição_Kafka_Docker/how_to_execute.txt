@@ -1,0 +1,12 @@
+how_to:
+1 - Nessa mesma pasta
+
+	sudo docker-compose build
+
+2 - Após o termino do processo executar 
+
+	sudo docker-compose run collector python main.py
+
+*O programa está configurado para utilizar o configuration.json
+presente na pasta do filtro presente no servidor do MPMG, caso 
+seja necessário fazer alguma mudança acessar o arquivo docker-compose.yml

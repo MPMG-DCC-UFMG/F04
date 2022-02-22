@@ -1,0 +1,41 @@
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic crawler_status --from-beginning
+
+sudo docker run -d -v "$(pwd)/data/:/data-docker-root/" -v /datalake/:/datalake/ --rm -it mp_vx python3 consumer.py
+
+sudo docker run -v /datalake/:/datalake/ -v "$(pwd)/data/:/data-docker-root/" --rm -it mp_vx python3 producer.py -d "$(python3 dumper.py /dados01/workspace/ufmg.c02dcc/kafka/inputs/it.json)"
+
+sudo docker run --rm -it mp_vx bash -c '../../Downloads/kafka/bin/kafka-console-consumer.sh --bootstrap-server hadoopdn-gsi-prod05.mpmg.mp.br:6667 --topic intermediate_f04 --property print.key=true --property key.separator=" : " --from-beginning'
+
+
+sudo docker run --rm -it mp_vx bash -c '../../Downloads/kafka/bin/kafka-topics.sh --bootstrap-server hadoopdn-gsi-prod05.mpmg.mp.br:6667 --list
+
+ssh -p 27834 ufmg.c02dcc@177.190.215.24
+SENHA: 8fcW3dMFJpP
+ssh ufmg.c02dcc@10.21.0.131
+SENHA: 8fcW3dMFJpP
+
+
+
+/dados01/workspace/ufmg.c02dcc/F04-2021/filtro
+
+
+sudo docker run --rm -it mp_vx bash -c '../../Downloads/kafka/bin/kafka-topics.sh --list --bootstrap-server hadoopdn-gsi-prod05.mpmg.mp.br:6667'
+
+
+
+"hadoopdn-gsi-prod04.mpmg.mp.br:6667",
+"hadoopdn-gsi-prod05.mpmg.mp.br:6667",
+"hadoopdn-gsi-prod06.mpmg.mp.br:6667",
+"hadoopdn-gsi-prod07.mpmg.mp.br:6667",
+"hadoopdn-gsi-prod08.mpmg.mp.br:6667",
+"hadoopdn-gsi-prod09.mpmg.mp.br:6667",
+"hadoopdn-gsi-prod10.mpmg.mp.br:6667",
+
+
+
+sudo docker run --rm -it mp_vx bash -c '../../Downloads/kafka/bin/kafka-console-producer.sh --bootstrap-server hadoopdn-gsi-prod05.mpmg.mp.br:6667 --topic crawler_twitter_post'
+
+
+/dados01/workspace/ufmg.c02dcc/kafka/2020-C02/integrated
+

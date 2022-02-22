@@ -1,0 +1,42 @@
+{
+        "group_id": "ufmg.c02.9977",
+
+        "read_topics": {"crawler_twitter_post": "twitter", "crawler_telegram_mensagem": "telegram",
+                        "ufmg_f04_2021_mensagens_imagem_dev": "imagens", "ufmg_f04_2021_mensagens_audio_dev": "audio", "ufmg_f04_2021_mensagens_texto_dev": "texto"},
+
+        "write_topics": {"image_topic_name": "ufmg_f04_2021_mensagens_imagem_dev", "text_topic_name": "ufmg_f04_2021_mensagens_texto_dev",
+                        "discard_topic_name": "ufmg_f04_2021_mensagens_descartadas_dev", "audio_topic_name": "ufmg_f04_2021_mensagens_audio_dev",
+                        "error_topic_name": "ufmg_f04_2021_mensagens_erro_dev",
+                        "result_topic_name": "ufmg_f04_2021_identificador_propaganda_antecipada_dev"},
+
+        "kafka_servers": ["hadoopdn-gsi-prod04.mpmg.mp.br:6667","hadoopdn-gsi-prod05.mpmg.mp.br:6667",
+                        "hadoopdn-gsi-prod06.mpmg.mp.br:6667","hadoopdn-gsi-prod07.mpmg.mp.br:6667",
+                        "hadoopdn-gsi-prod08.mpmg.mp.br:6667","hadoopdn-gsi-prod09.mpmg.mp.br:6667",
+                        "hadoopdn-gsi-prod10.mpmg.mp.br:6667"
+        ],
+
+        "timeouts": {"topic_timeout": "64","between_timeout": "8","timeout_batch": "60"},
+
+        "filtro_texto": true,
+        "filtro_imagem": true,
+        "filtro_audio": true,
+
+        "datas": [
+        {"data_minima:01-01-2020":"data_maxima:12-12-2020"}
+
+        ],
+
+        "modelo_preliminar": {"caminho_arquivo_reforco":"/home/mp/mounted/metodo_preliminar/reforco.json",
+                "caminho_arquivo_pesos":"/home/mp/mounted/metodo_preliminar/pesos.json",
+                "caminho_arquivo_blacklist":"/home/mp/mounted/metodo_preliminar/blacklist.txt", "versao": "1.0"},
+
+        "modelo_naive_bayes": {"caminho_arquivo_skl":"/home/mp/mounted/models/NBAYES/naive_twitter_text_2020_only_ben.skl", "versao":"1.0"},
+
+        "modelo_rnn": {"caminho_arquivo_npy": "/home/mp/mounted/models/RNN/twitter_text2020/vocabulary.npy", "caminho_arquivo_h5": "/home/mp/mounted/models/RNN/twitter_text2020/twitter_text_2020_only_3.h5", "caminho_arquivo_word2vec": "/home/mp/mounted/models/cbow_s300.txt", "versao":"1.0"},
+
+        "modelo_han": {"caminho_arquivo_npy": "/home/mp/mounted/models/HAN/twitter_text_2020_only/vocabulary.npy", "caminho_arquivo_h5": "/home/mp/mounted/models/HAN/twitter_text_2020_only/twitter_text_2020_only_9.h5", "caminho_arquivo_word2vec": "/home/mp/mounted/models/cbow_s300.txt", "versao":"1.0"},
+
+        "modelo_lstm": {"caminho_arquivo_npy": "/home/mp/mounted/models/LSTM/twitter_2020/vocabulary.npy", "caminho_arquivo_h5": "/home/mp/mounted/models/LSTM/twitter_2020/twitter_text_2020_only_1.h5", "caminho_arquivo_word2vec": "/home/mp/mounted/models/cbow_s300.txt", "versao":"1.0"},
+
+        "metodo_selecionado": "naive_bayes"
+}

@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  collector:
+     build: .
+     volumes: 
+       - "/datalake/ufmg/telegram:/data"
+       - "/dados01/workspace/ufmg.c02dcc/F04-2021/filter/data:/config"
+     working_dir: /app
+
+volumes:
+  data:
+  config:
