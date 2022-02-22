@@ -75,6 +75,7 @@ class MetodoPreliminar:
 
     def __get_texto_sem_simbolos_especiais(self, text):
         try:
+            text = str(text)
             text = text.lower()
 
             text = text.replace('\n', " ").replace('\"', "").replace('"', "").replace('\'', "").replace("'", "").replace(",", " ").replace(":","").replace(".", "").replace(";", "").replace("!", "").replace("$", "").replace("%", "").replace("&", "").replace("?", "").replace("*", "").replace("-", " ").replace("(", "").replace(")", "").replace("+", "")
