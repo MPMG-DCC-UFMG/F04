@@ -116,11 +116,12 @@ class MetodoPreliminar:
 
     def __get_texto_reforcado(self, text):
         try:
-            ### Substitui palavras por palavras de reforço da lista
-            for palavra_info in PALAVRAS_REFORCO:
-                text = (" " + text + " ").replace(" " + palavra_info[0] + " ", " " + palavra_info[1] + " ")
-                text = (" " + text + " ").replace(" @" + palavra_info[0] + " ", " " + palavra_info[1] + " ")
-                text = text[1:len(text) - 1]
+            if text is not None:
+                ### Substitui palavras por palavras de reforço da lista
+                for palavra_info in PALAVRAS_REFORCO:
+                    text = (" " + text + " ").replace(" " + palavra_info[0] + " ", " " + palavra_info[1] + " ")
+                    text = (" " + text + " ").replace(" @" + palavra_info[0] + " ", " " + palavra_info[1] + " ")
+                    text = text[1:len(text) - 1]
 
             return text
         except Exception as e:
@@ -151,10 +152,14 @@ class MetodoPreliminar:
 
     def __faz_limpeza_texto(self, text):
         try:
-            text = self.__get_texto_sem_simbolos_especiais(text=text)
-            text = self.__get_texto_reforcado(text=text)
-            text = self.__get_texto_sem_marcacoes_especiais(text=text)
-            text = self.__get_texto_lematizado(text=text)
+            if text is not None:
+                text = self.__get_texto_sem_simbolos_especiais(text=text)
+                if text is not None:
+                    text = self.__get_texto_reforcado(text=text)
+                    if text is not None:
+                        text = self.__get_texto_sem_marcacoes_especiais(text=text)
+                        if text is not None:
+                            text = self.__get_texto_lematizado(text=text)
 
             return text, None
         except Exception as e:
