@@ -21,10 +21,13 @@ class TikaTranscriber():
     response = subprocess.getstatusoutput(final_command)
     jason = response[1].split('\n')[-1]
     jason = json.loads(jason)
-    
+    new_dict = {}
     final_text = jason['texto']
-    
-    return final_text  
+    file_name = path.split('/')
+    image_name = file_name[-1]
+    new_dict[image_name] = final_text
+    print(new_dict)
+    return new_dict
   
 
       
@@ -36,7 +39,7 @@ class TikaTranscriber():
                             files=self.file, verify=False)
     
     final_text = response.json()['texto']
-  
+     
     return final_text  
   
 
