@@ -229,18 +229,18 @@ class Filter(KafkaInteractor):
                 trash_message = self.__get_message(destined_message, TEXT_FIELDS, tipo, PLATFORM, trash_motive)
             elif destined_message["tipo"] == "image":
                 if destino_message["arquivo"] == "null":
-			trash_motive = "sem arquivo"
-			trash_message = self.__get_message(destined_message, TEXT_FIELDS, tipo, PLATFORM, trash_motive)
-			self.send_to_trash(trash_message, message[0], get_key, verbose)
-			return	
-		tipo = "texto+imagem"
+                    trash_motive = "sem arquivo"
+                    trash_message = self.__get_message(destined_message, TEXT_FIELDS, tipo, PLATFORM, trash_motive)
+                    self.send_to_trash(trash_message, message[0], get_key, verbose)
+                    return	
+                tipo = "texto+imagem"
                 trash_message = self.__get_message(destined_message, MEDIA_FIELDS, tipo, PLATFORM, trash_motive)
             elif destined_message["tipo"] == "audio":
-		if destino_message["arquivo"] == "null":
-                        trash_motive = "sem arquivo"
-                        trash_message = self.__get_message(destined_message, TEXT_FIELDS, tipo, PLATFORM, trash_motive)
-                        self.send_to_trash(trash_message, message[0], get_key, verbose)
-                        return
+                if destino_message["arquivo"] == "null":
+                    trash_motive = "sem arquivo"
+                    trash_message = self.__get_message(destined_message, TEXT_FIELDS, tipo, PLATFORM, trash_motive)
+                    self.send_to_trash(trash_message, message[0], get_key, verbose)
+                    return
                 tipo = "audio"   
                 trash_message = self.__get_message(destined_message, MEDIA_FIELDS, tipo, PLATFORM, trash_motive)
             else:

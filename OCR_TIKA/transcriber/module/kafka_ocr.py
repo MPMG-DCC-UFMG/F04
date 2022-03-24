@@ -142,7 +142,7 @@ class Ocr(KafkaInteractor):
           image_path = os.path.join(self.__kafka_path, image_path)
           text = obj.transcribe_single_image(image_path)
                     
-        transcribe_list.append(text) if any([True for key,value in text.items() if len((value.replace('\n', '').replace(' ', ''))) != 0]) else \
+          transcribe_list.append(text) if any([True for key,value in text.items() if len((value.replace('\n', '').replace(' ', ''))) != 0]) else \
           empty_list.append(text)
       
       elif "datalake" in new_message:
