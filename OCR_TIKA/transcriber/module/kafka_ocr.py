@@ -62,13 +62,13 @@ class Ocr(KafkaInteractor):
         
               elif error == STT:
                 new_message['motivo_erro'] = "Arquivo não encontrado." 
-                if publish_kafka_message(self._KafkaInteractor__producer, self._KafkaInteractor__write_topics['error_topic_name'], json.dumps(new_message), final_message[0], get_key=True):
+                if publish_kafka_message(self._KafkaInteractor__producer, self._KafkaInteractor__write_topics['error_topic_name'], json.dumps(new_message, ensure_ascii=False), final_message[0], get_key=True):
                   if verbose : print(green_string('Transcrição de mensagem feita com sucesso.'))            
               
               elif error == NERR:
                 if new_message:
                   
-                  if not publish_kafka_message(self._KafkaInteractor__producer, self._KafkaInteractor__write_topics['text_topic_name'], json.dumps(new_message), final_message[0], get_key=True):
+                  if not publish_kafka_message(self._KafkaInteractor__producer, self._KafkaInteractor__write_topics['text_topic_name'], json.dumps(new_message, ensure_ascii=False), final_message[0], get_key=True):
                     if verbose : print(green_string('Transcrição de mensagem feita com sucesso.'))
                 
                 
