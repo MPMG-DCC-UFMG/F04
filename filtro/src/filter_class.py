@@ -77,7 +77,7 @@ class Filter(KafkaInteractor):
         message_batch = None
         try:
             consumer = self._KafkaInteractor__connect_kafka_consumer(topic_name)
-            timeout_batch = int(self._KafkaInteractor__timeouts['timeout_batch'])*1000
+            timeout_batch = int(self._KafkaInteractor__timeouts['timeout_batch'])*10
             #A API do Kafka não garante que o método .poll() retornará mensagem apenas da primeira chamada. Para garantir que um tópcio
             #não tem mensagens, é sempre bom chamar várias vezes.            
             for _ in range(2):
