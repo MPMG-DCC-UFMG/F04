@@ -14,5 +14,5 @@
   X_IMG_FOLDER="/datalake/ufmg/"
 
   docker run -v "$X_IMG_FOLDER:$IMG_FOLDER" \
-  --rm -it "$(docker images | grep 'ocr_mp' | head -1| cut -d' ' -f 1)" \
+  --rm -it -d "$(docker images | grep 'ocr_mp' | head -1| cut -d' ' -f 1)" \
   python3 /home/mp/transcricao/main.py "$(python3 json_maker.py "$FILE_PATH")" "$(python3 json_maker.py "$AUTH_PATH")" "$X_IMG_FOLDER";

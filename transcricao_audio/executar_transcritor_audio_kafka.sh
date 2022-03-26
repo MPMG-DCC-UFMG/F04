@@ -10,5 +10,5 @@
   X_DATA_FOLDER="/datalake/ufmg/telegram"
 
   docker run -v "$X_DATA_FOLDER:$DATA_FOLDER"\
-  --rm -it "$(docker images | grep 'transcricao_audio_mp_v1' | head -1| cut -d' ' -f 1)" \
+  --rm -it -d "$(docker images | grep 'transcricao_audio_mp_v1' | head -1| cut -d' ' -f 1)" \
   python3 /app/main.py "$(python3 json_maker.py "$FILE_PATH")";
