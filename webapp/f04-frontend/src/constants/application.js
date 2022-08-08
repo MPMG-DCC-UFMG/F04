@@ -1,0 +1,2 @@
+export const SEARCH_FILTERS = "SEARCH_FILTERS";
+export const SEARCH_EVENT = "SEARCH_EVENT";

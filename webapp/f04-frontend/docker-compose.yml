@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  app:
+    container_name: f04-dockerized-react-app-dev
+    build:
+        context: .
+        dockerfile: Dockerfile
+    volumes:
+        - '.:/app'
+        - '/app/node_modules'
+    env_file:
+      - ./.env
+    ports:
+        - '${REACT_APP_PUBLIC_PORT}:3000'
+    environment:
+        - NODE_ENV=development

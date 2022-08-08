@@ -1,0 +1,1 @@
+0 1 * * * /bin/bash /code/jobs/automongobackup.sh >> /var/log/cron.log 2>&1

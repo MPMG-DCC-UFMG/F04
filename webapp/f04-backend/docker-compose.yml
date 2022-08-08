@@ -1,0 +1,128 @@
+version: "3.3"
+services:
+  web:
+    container_name: f04-backend
+    environment:
+      TZ: America/Sao_Paulo
+    build: .
+    ports:
+      - "${PUBLIC_PORT}:80"
+    env_file:
+      - ./.env
+    volumes:
+        - './app:/code/app'
+  mongodb:
+    container_name: f04-mongodb
+    image: mongo
+    
+    restart: on-failure
+    env_file:
+      - ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+      TZ: America/Sao_Paulo
+    volumes:
+      - ${MONGO_DATA_VOLUME}:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongo
+        - --eval
+        - "db.adminCommand('ping')"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+  mongo_backup:
+    container_name: f04-mongodb-backup
+    image: mongo
+    env_file:
+      - ./.env
+    volumes:
+      - ${BACKUP_VOLUME}:/backup
+    command: >
+      sh -c 'mongodump --uri "mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}" --gzip --archive=/backup/$$(date +'%y-%m-%d_%H-%M-%S').gz --authenticationDatabase admin 
+      && mongodump --uri "mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}" --gzip --archive=/backup/lastdb.gz --authenticationDatabase admin'
+    profiles:
+      - tools
+    depends_on:
+      - mongodb
+    environment:
+      TZ: America/Sao_Paulo
+  mongo_restore:
+    container_name: f04-mongodb-backup
+    image: mongo
+    env_file:
+      - ./.env
+    volumes:
+      - ${BACKUP_VOLUME}:/backup
+    command: >
+      sh -c 'mongorestore --uri "mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}" --gzip --archive=/backup/lastdb.gz --authenticationDatabase admin'
+    profiles:
+      - tools
+    depends_on:
+      - mongodb
+    environment:
+      TZ: America/Sao_Paulo
+
+  mongo_seed:
+    container_name: f04-mongodb-seed
+    env_file:
+      - ./.env
+    build: ./seed
+    depends_on:
+      - mongodb
+    environment:
+      TZ: America/Sao_Paulo
+    profiles:
+      - dev
+  jobs:
+    container_name: f04-backup-jobs
+    env_file:
+      - ./.env
+    build:
+      context: .
+      dockerfile: ./app/jobs/Dockerfile
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    volumes:
+      - ${BACKUP_VOLUME}:/backup
+    environment:
+      TZ: America/Sao_Paulo
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+   
+    ports:
+      - 8091:8081
+    env_file:
+      - ./.env
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DB_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DB_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+    # profiles:
+    #   - dev
+  
+  crawler:
+    container_name: f04-crawler
+    env_file:
+      - ./.env
+    build: ./crawler
+    # depends_on:
+    #   - mongodb
+    environment:
+      TZ: America/Sao_Paulo
+    profiles:
+      - collector
+    volumes:
+      - ./crawler:/code/
+    links:
+      - mongodb
+    depends_on:
+      - mongodb

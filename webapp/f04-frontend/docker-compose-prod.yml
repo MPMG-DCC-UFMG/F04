@@ -1,0 +1,9 @@
+version: '3.3'
+services:
+  app-prod:
+    container_name: f04-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile-prod
+    ports:
+      - '${REACT_APP_PUBLIC_PORT}:80'

@@ -1,0 +1,14 @@
+fastapi>=0.68.0,<0.69.0
+pydantic>=1.8.0,<2.0.0
+uvicorn>=0.15.0,<0.16.0
+pymongo
+python-dotenv
+python-jose
+passlib
+python-multipart
+lxml
+termcolor
+html5lib
+urllib3
+bs4
+oic
