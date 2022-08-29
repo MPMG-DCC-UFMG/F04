@@ -76,6 +76,19 @@ services:
       TZ: America/Sao_Paulo
     profiles:
       - dev
+  classifier:
+    container_name: f04-classifier
+    env_file:
+      - ./.env
+    build:
+      context: .
+      dockerfile: ./classifier/Dockerfile
+    depends_on:
+      - mongodb
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - ${MODEL_VOLUME}:/model
   jobs:
     container_name: f04-backup-jobs
     env_file:

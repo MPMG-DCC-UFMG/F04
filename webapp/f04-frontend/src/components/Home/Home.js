@@ -3,13 +3,14 @@ import React from "react";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { useToast } from "../UI/Toast";
-import { Icon, Header, Button, Label, Grid, Message } from "semantic-ui-react";
+import { Icon, Header, Button, Label, Grid, Menu } from "semantic-ui-react";
 import ListTable from "../Home/ListTable";
 import ListCard from "../Home/ListCard";
 import Chart from "../Chart";
 import Search from "../UI/Search";
 import eventBus from "../../services/eventBus";
 import { format } from "date-fns";
+import { Tab } from "semantic-ui-react";
 import Swal from "sweetalert2";
 export const Home = () => {
   const [tweets, setTweets] = useState([]);
@@ -17,6 +18,122 @@ export const Home = () => {
   const [politicalTweet, setPoliticalTweet] = useState([]);
   const [notPoliticalTweet, setNotPoliticalTweet] = useState([]);
   const [quarantineTweet, setQuarantineTweet] = useState([]);
+  const [allTotal, setAllTotal] = useState(0);
+  const [quarantineTotal, setQuarantineTotal] = useState(0);
+  const [politicalTotal, setpoliticalTotal] = useState(0);
+  const [nonPoliticalTotal, setNonpoliticalTotal] = useState(0);
+
+  const panes = [
+    {
+      menuItem: (
+        <Menu.Item key="all">
+          Tudo<Label>{allTotal}</Label>
+        </Menu.Item>
+      ),
+      render: () => (
+        <Tab.Pane>
+          {listType === "table" && (
+            <ListTable tweets={tweets} relabel={relabel} loading={loading} />
+          )}
+          {listType === "list" && (
+            <ListCard tweets={tweets} relabel={relabel} />
+          )}
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: (
+        <Menu.Item key="quarantine">
+          Em Análise<Label>{quarantineTotal}</Label>
+        </Menu.Item>
+      ),
+      render: () => (
+        <Tab.Pane>
+          {listType === "table" && (
+            <ListTable
+              tweets={quarantineTweet}
+              relabel={relabel}
+              loading={loading}
+            />
+          )}
+          {listType === "list" && (
+            <ListCard
+              tweets={quarantineTweet}
+              relabel={relabel}
+              loading={loading}
+            />
+          )}
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: (
+        <Menu.Item key="political">
+          Eleitoral<Label>{politicalTotal}</Label>
+        </Menu.Item>
+      ),
+      render: () => (
+        <Tab.Pane>
+          {listType === "table" && (
+            <ListTable
+              tweets={politicalTweet}
+              relabel={relabel}
+              loading={loading}
+            />
+          )}
+          {listType === "list" && (
+            <ListCard
+              tweets={politicalTweet}
+              relabel={relabel}
+              loading={loading}
+            />
+          )}
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: (
+        <Menu.Item key="nonpolitical">
+          Não Eleitoral<Label>{nonPoliticalTotal}</Label>
+        </Menu.Item>
+      ),
+      render: () => (
+        <Tab.Pane>
+          {listType === "table" && (
+            <ListTable
+              tweets={notPoliticalTweet}
+              relabel={relabel}
+              loading={loading}
+            />
+          )}
+          {listType === "list" && (
+            <ListCard
+              tweets={notPoliticalTweet}
+              relabel={relabel}
+              loading={loading}
+            />
+          )}
+        </Tab.Pane>
+      ),
+    },
+    {
+      menuItem: "Gráficos",
+      render: () => (
+        <Tab.Pane>
+          {" "}
+          <Chart tweets={tweets} />
+        </Tab.Pane>
+      ),
+    },
+  ];
+
+  const tabChange = (e, { activeIndex }) => {
+    if (activeIndex === 0) {
+    } else if (activeIndex === 1) {
+      setListType("quarantine");
+    }
+  };
+  const TabExampleBasic = () => <Tab panes={panes} />;
 
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState({
@@ -24,7 +141,7 @@ export const Home = () => {
     retweets: "down",
   });
 
-  const { showErrorMessage } = useToast();
+  const { showErrorMessage, showSuccessMessage } = useToast();
   const [listType, setListType] = useState("table");
   const [filters, setFilters] = useState({});
 
@@ -60,6 +177,7 @@ export const Home = () => {
       .get(`/tweets?top_n=${n * 100}&political=political`)
       .then((response) => {
         setPoliticalTweet(response.data.data);
+        setpoliticalTotal(response.data.total);
         // setLoading(false);
       })
       .catch((err) => {
@@ -70,6 +188,7 @@ export const Home = () => {
       .get(`/tweets?top_n=${n * 100}&political=nonpolitical`)
       .then((response) => {
         setNotPoliticalTweet(response.data.data);
+        setNonpoliticalTotal(response.data.total);
         // setLoading(false);
       })
       .catch((err) => {
@@ -80,6 +199,7 @@ export const Home = () => {
       .get(`/tweets?top_n=${n * 100}&political=quarantine`)
       .then((response) => {
         setQuarantineTweet(response.data.data);
+        setQuarantineTotal(response.data.total);
         // setLoading(false);
       })
       .catch((err) => {
@@ -124,10 +244,12 @@ export const Home = () => {
       .then((response) => {
         setTweets(response.data.data);
         setLoading(false);
+        setAllTotal(response.data.total);
       })
       .catch((err) => {
         setLoading(false);
-        showErrorMessage("Não conseguimos carregar os dados.");
+
+        //showErrorMessage("Não conseguimos carregar os dados.");
         //navigate(routes.login);
       });
 
@@ -150,9 +272,9 @@ export const Home = () => {
   const relabel = (tweetId, label, txt) => {
     let text =
       label == "political"
-        ? "Você confirma que este post CONTÉM uma mensagem política de campanha antecipada?"
+        ? "Você confirma que este post CONTÉM uma mensagem eleitoral de campanha?"
         : label == "nonpolitical"
-        ? "Você confirma que este post NÃO CONTÉM uma mensagem política de campanha antecipada?"
+        ? "Você confirma que este post NÃO CONTÉM uma mensagem eleitoral de campanha?"
         : "Você confirma que quer adicionar este post à lista de ANÁLISE?";
 
     if (label == null) {
@@ -172,7 +294,7 @@ export const Home = () => {
         api
           .get(`/tweets/labeling/${tweetId}/${label}`)
           .then(() => {
-            Swal.fire("Dados Salvos!", "", "success");
+            showSuccessMessage("Dados salvos com sucesso!");
             eventBus.dispatch("performSearch", {});
           })
           .catch(() => {
@@ -200,7 +322,6 @@ export const Home = () => {
     <>
       <NavBar />
       <Search />
-
       <Header as="h2" size="large">
         <Icon name="twitter" />
         <Header.Content>
@@ -234,16 +355,16 @@ export const Home = () => {
               <Icon name="grid layout" />
               Cartão
             </Button>
-            <Button
+            {/* <Button
               icon
               labelPosition="left"
               onClick={() => changeListType("chart")}
             >
               <Icon name="chart bar" />
               Gráficos
-            </Button>
+            </Button> */}
           </Button.Group>{" "}
-          <Button
+          {/* <Button
             icon
             color="blue"
             labelPosition="left"
@@ -269,7 +390,7 @@ export const Home = () => {
           >
             <Icon name="thumbs down" />
             Não político ({notPoliticalTweet.length})
-          </Button>
+          </Button> */}
         </Grid.Column>
 
         {(filters?.startDate ||
@@ -323,9 +444,11 @@ export const Home = () => {
           </Grid.Column>
         )}
       </Grid>
+
       <Grid fluid padded columns="1">
         <Grid.Column fluid>
-          {listType === "table" && (
+          <TabExampleBasic />
+          {/* {listType === "table" && (
             <ListTable tweets={tweets} relabel={relabel} />
           )}
           {listType === "list" && (
@@ -377,7 +500,7 @@ export const Home = () => {
                 </Button>
               </Grid.Column>
             </Grid>
-          )}
+          )} */}
         </Grid.Column>
       </Grid>
     </>

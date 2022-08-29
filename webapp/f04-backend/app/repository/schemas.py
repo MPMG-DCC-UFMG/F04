@@ -62,14 +62,18 @@ class Tweet(BaseModel):
     lang: Optional[str] = None
     source: Optional[str] = None
     discovered_by_keyword: Optional[str] = None
-    public_metrics: Optional[Dict] = None
+    quote_count: Optional[int]
+    reply_count: Optional[int]
+    retweet_count: Optional[int]
+    favorite_count: Optional[int]
     user: Optional[Dict] = None
     entities: Optional[Dict] = None
     referenced_tweets: Optional[List] = None
     context_annotations: Optional[List] = None
     media: Optional[List] = None
     political: Optional[str] = None
-    score: Optional[float] = 0
+    score: Optional[float] = -1
+    retweet_id: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True

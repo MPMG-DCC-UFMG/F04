@@ -9,18 +9,19 @@ def get_all(db, top_n, start_date, end_date, q, retweets,hashtags, user, politic
     tweets = []
 
     query = {}
-
+    
     if q:
         query['$text'] = {'$search': q}
     if start_date:
+        print(start_date.isoformat())
         query['created_at'] = {}
-        query['created_at']['$gte'] = time.mktime(start_date.timetuple()) * 1000
+        query['created_at']['$gte'] = start_date.isoformat()
 
     if end_date:
         if 'created_at' not in query:
             query['created_at'] = {}
 
-        query['created_at']['$lte'] = time.mktime(end_date.timetuple()) * 1000
+        query['created_at']['$lte'] = end_date.isoformat()
     if user:
         pattern = re.compile('^'+user.replace('@', '') + '$', re.I)
         query['user.username'] = {'$regex':pattern}
@@ -44,16 +45,15 @@ def get_all(db, top_n, start_date, end_date, q, retweets,hashtags, user, politic
     # elif sortby == 'comments':
     #     sort = [['public_metrics.reply_count', -1]]
 
-    sort = [['retweet_count', -1 if retweets == 'up' else 1 ]]
-    sort = [['score', -1 ], ['retweet_count', -1 if retweets == 'up' else 1 ]]
+    #sort = [['retweet_count', -1 if retweets == 'up' else 1 ]]
+    sort = [['score', -1 ], ['retweet_id', -1 if retweets == 'up' else 1 ]]
     skips = top_n * (page - 1)
   
 
     for tweet in db.tweets.find(query).sort(sort).skip(skips).limit(top_n):
         # TODO: simulando a atribuição de score para o tweet (mudar)
-        if 'score' not in tweet:
-            tweet['score'] =  round(random.uniform(0.85, 0.97), 2)
-            db.tweets.find_one_and_update({'_id': tweet['_id']}, {"$set": {"score": tweet['score']}})
+        # if 'score' not in tweet:
+        #     db.tweets.find_one_and_update({'_id': tweet['_id']}, {"$set": {"score": tweet['score']}})
 
         tweets.append(schemas.Tweet(**tweet))
 

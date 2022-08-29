@@ -1,3 +1,90 @@
+# 1 - Integração com WS02
+
+A configuração deste ambiente de desenvolvimento será feita utilizando containers docker e imagens do WS02 disponíveis no [Docker Hub]([Docker Hub](https://hub.docker.com/r/wso2/wso2am)).
+
+## Requisitos
+
+- Docker 20.10 ou superior
+
+- [Imagem do WS02]([Docker Hub](https://hub.docker.com/r/wso2/wso2am))
+
+- Python 3.8+
+
+## Criando o ambiente de desenvolvimento
+
+Nesta instação, o container contendo o servidor do WS02 local terá o nome de ``` ws02.sh```.
+
+### Instalação do WS02
+
+Renomeie o arquivo em *example.toml* para *deployment.toml*
+
+Em seguida, execute:
+
+```shell
+docker run -it -p 8280:8280 -p 8243:8243 -p 9443:9443 -v $(pwd)/deployment.toml:/home/wso2carbon/wso2am-4.1.0/repository/conf/deployment.toml --name ws02.sh wso2/wso2am:4.1.0
+```
+
+Edite o arquivo ```/etc/hosts```, adicione a seguinte linha:
+
+```shell
+127.0.0.1 ws02.sh
+```
+
+Agora, acesse https://ws02.sh:9443/carbon no seu Browser. Aceite acessar o site mesmo com erro de SSL. 
+
+![](./docs/imgs/ssl.error.png)
+
+A senha padrão é **admin** e senha também **admin**.
+
+![](./docs/imgs/login.png)
+
+Agora, acesse o menu **Service Providers** Importe o arquivo sp.example.xml disponível na pasta **docs**.  
+
+![](./docs/imgs/menu.sp.png)
+
+![](./docs/imgs/sp.import.png)
+
+Agora, você precisa configurar a sua URL de callback. Esta URL será para onde o WS02 redirecionará o usuário quando o ele autenticar corretamente no WS02.
+
+Acesse:  Home  > Identity  > Service Providers  > List . Na listagem que aparecerá, clique em "Edit". Navegue até a configuração do cliente e clique em "Edit", como mostrado a seguir.
+
+![](./docs/imgs/oauth.client.config.png)
+
+Na URL de callback você poderá informar uma única URL ou váriar utilizar uma pressão regular. Vejo um exemplo de duas URLs de callbacks.
+
+```shell
+regexp=(http://urldomeuservidor1/logincallback|http://urldomeuservidor2/logincallback)
+```
+
+Pronto, o serviço do WS02 local já está pronto para receber conexões. Sempre que precisar, inicie o serviço de WS02 com o comando:
+
+```shell
+docker container start ws02.sh
+```
+
+### Autenticando no WS02 com Python.
+
+Instale no seu servidor a biblioteca pyoidc:
+
+```shell
+pip install oic
+```
+
+Abaixo, segue um exemplo de código utilizando Fast Api com a completa autenticação do usuário. Este script utiliza variáveis de ambiente definidas em um arquivo .env ou exportadas manualmente via console. 
+
+Exemplo de arquivo .env:
+
+```shell
+WS02_ISSUER=https://ws02.sh:9443
+URL_FRONTEND=URL_DO_SEU_FRONTEND
+URL_BACKEND=URL_DO_SEU_BACKEND
+WS02_CLIENT_ID=SEU_CLIENT_ID
+WS02_CLIENT_SECRET=SEU_CLIENT_SECRET
+```
+
+Exemplo de autenticação com [Fast API.](https://fastapi.tiangolo.com/)
+
+```python
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from ..repository import schemas, database, models
@@ -16,7 +103,6 @@ from oic.oic.message import AuthorizationResponse
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 from fastapi.responses import RedirectResponse
-import time
 import os
 router = APIRouter(tags=['Authentication'])
 inner_state = rndstr()
@@ -58,6 +144,8 @@ def no_ssl_verification():
 
 def get_login_url():
     # Informações padrões sobre os end-points do Provedor OpenID (OP - WSO2 IS)
+    # Estas informações vem de um arquivo .env
+    # no nosso exemplo, o WS02_ISSUER=https://ws02.sh:9443
     WS02_ISSUER = os.getenv('WS02_ISSUER')
     info_issuer = {}
 
@@ -75,7 +163,7 @@ def get_login_url():
         introspection_endpoint= info_issuer["introspection_endpoint"],
         end_session_endpoint = info_issuer["end_session_endpoint"],
         srv_discovery_url = "{}/oauth2/oidcdiscovery/.well-known/openid-configuration".format (WS02_ISSUER),
-        #discovery_endpoint = info_issuer["discovery_endpoint"],
+   
     )
 
     client.handle_provider_config(op_info, op_info['issuer'])
@@ -106,34 +194,6 @@ def get_login_url():
     return auth_req.request(client.authorization_endpoint)
 
 
-@router.post('/login')
-def login(request: OAuth2PasswordRequestForm = Depends(), db=Depends(database.get_db)):
-
-    user = db.users.find_one({'email': request.username})
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Invalid Credentials")
-    if not Hash.verify(user['password'], request.password):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Incorrect password")
-
-    access_token = token.create_access_token(data={"sub": user['email']})
-    return {"access_token": access_token, "token_type": "bearer", "user": schemas.User(**user)}
-
-@router.get('/logintoken')
-def login(tk:str, db=Depends(database.get_db)):
-    print(tk)
-
-    user = db.users.find_one({'email': Hash.decrypt_message(tk)})
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Invalid Credentials")
-
-    access_token = token.create_access_token(data={"sub": user['email']})
-    return {"access_token": access_token, "token_type": "bearer", "user": schemas.User(**user)}
-
 @router.get('/authws02')
 def ws02(db=Depends(database.get_db)):
     return RedirectResponse (get_login_url())
@@ -161,26 +221,31 @@ def callback(request: Request, db=Depends(database.get_db)):
     if(resp["access_token"]!= ""):
         with no_ssl_verification():
             userinfo = client.do_user_info_request(access_token=resp["access_token"], scope='profile')
-            userinfo['email'] = userinfo['email'] if 'email' in userinfo else userinfo['sub']
-            userinfo['given_name'] = userinfo['given_name'] if 'given_name' in userinfo else userinfo['sub']
-
-            print(userinfo)
+           
+            # verifica se o usuário já está banco
             user = db.users.find_one({'email': userinfo['email']})
-            if user:
-                return RedirectResponse ('%s/login/%s' % (os.getenv('URL_FRONTEND'), Hash.encrypt_message(userinfo['email'])))
-            
-            new_user = schemas.User(
-                name=userinfo['given_name'], 
-                email=userinfo['email'], 
-                password=Hash.bcrypt(aresp['state']),
-                ws02token=resp)
-            
-            if hasattr(new_user, 'id'):
-                delattr(new_user, 'id')
 
+            if user:
+                # execute aqui a sua lógica para redirecionar o 
+                # já logado para a sua tela inicial
+            else:
+                # primeira vez que este usuário acessa a aplicação
+                # insira suas informações no banco de dados
+                new_user = schemas.User(
+                name=userinfo['given_name'], 
+                email=userinfo['email'])
+            
             new_user = db.users.insert_one(new_user.dict(by_alias=True))
 
-            return RedirectResponse ('%s/login/%s' % (os.getenv('URL_FRONTEND'), Hash.encrypt_message(userinfo['email'])))
+            # redirecione e/ou retorne do usuário logado
     
     else:
         return "ERRO DE AUTENTICAÇÃO"
+
+```
+
+### Testando em Produção e Homologação
+
+Para testar sua aplicação em homologação e/ou produção haverá a necessidade de configurar apenas as variáveis de ambiente (Secret KEY e Secret ID do cliente) e a correta URL de callback no servidor de WS02 de produção, no caso do MPMG será https://sso.gsi.mpmg.mp.br .
+
+

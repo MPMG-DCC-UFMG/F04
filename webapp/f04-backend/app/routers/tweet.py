@@ -5,6 +5,7 @@ from ..security import oauth2
 from ..repository import tweet
 from ..repository.schemas import ResponseModel, ErrorResponseModel
 from datetime import datetime
+from bson import ObjectId
 
 router = APIRouter(
     prefix="/tweets",
@@ -122,6 +123,15 @@ async def top_n_users(db=Depends(get_db),
 async def labeling(tweet_id, label, db=Depends(get_db), current_user: schemas.User = Depends( oauth2.get_current_user)):
 
     if label:
+        db.tweets.find_one_and_update({'_id': ObjectId(tweet_id)}, {"$set": {"political": str(label)}})
         db.tweets.find_one_and_update({'_id': tweet_id}, {"$set": {"political": str(label)}})
     else:
+        db.tweets.find_one_and_update({'_id': ObjectId(tweet_id)}, {"$unset": {"political": None}})
         db.tweets.find_one_and_update({'_id': tweet_id}, {"$unset": {"political": None}})
+    
+    tweet = db.tweets.find_one ({'_id': ObjectId(tweet_id)})
+
+    if (tweet == None):
+        tweet = db.tweets.find_one ({'_id': tweet_id})
+
+    return schemas.Tweet(**tweet) 
