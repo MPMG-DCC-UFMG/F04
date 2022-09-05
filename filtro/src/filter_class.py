@@ -131,7 +131,6 @@ class Filter(KafkaInteractor):
         NULL
         
         """
-        TEXT_FIELDS = [key for key, _ in message[1].items()]
         IMAGE_FIELDS = ['identificador', 'id_do_autor', 'midias']
 
         PLATFORM = 'twitter'
@@ -140,6 +139,9 @@ class Filter(KafkaInteractor):
 
         img_msg = ""
         destined_message = json.loads(copy.deepcopy(message[1]))
+        
+        text_fields = [key for key, _ in destined_message.items()]
+
         midia_count = len(destined_message["midias"])
         date = datetime.now()
 
@@ -149,7 +151,7 @@ class Filter(KafkaInteractor):
             
             trash_motive = "Tweet fora do periodo valido para analise."
 
-            trash_message = self.__get_message(destined_message, TEXT_FIELDS, tipo, PLATFORM, trash_motive)
+            trash_message = self.__get_message(destined_message, text_fields, tipo, PLATFORM, trash_motive)
 
             self.send_to_trash(trash_message, message[0], get_key, verbose)
             return
@@ -181,11 +183,11 @@ class Filter(KafkaInteractor):
         if self.__texto:
             if destined_message['texto'] == "":
                 trash_motive = "Campo de texto do tweet vazio."
-                trash_message = self.__get_message(destined_message, TEXT_FIELDS, TEXT_TYPE, PLATFORM, trash_motive)
+                trash_message = self.__get_message(destined_message, text_fields, TEXT_TYPE, PLATFORM, trash_motive)
                 self.send_to_trash(trash_message, message[0], get_key, verbose)
             
             else:
-                final_text_message = self.__get_message(destined_message, TEXT_FIELDS, TEXT_TYPE, PLATFORM)
+                final_text_message = self.__get_message(destined_message, text_fields, TEXT_TYPE, PLATFORM)
 
                 if not common.publish_kafka_message(self._KafkaInteractor__producer, 
                                                 self._KafkaInteractor__write_topics['text_topic_name'], 
@@ -200,7 +202,7 @@ class Filter(KafkaInteractor):
             
             trash_motive = "Parametro filtro_texto configurado como falso no arquivo de configuracao."
             
-            trash_message = self.__get_message(destined_message, TEXT_FIELDS, TEXT_TYPE, PLATFORM, trash_motive)
+            trash_message = self.__get_message(destined_message, text_fields, TEXT_TYPE, PLATFORM, trash_motive)
             
             self.send_to_trash(trash_message, message[0], get_key, verbose)
                        
