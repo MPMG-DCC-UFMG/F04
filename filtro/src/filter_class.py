@@ -131,7 +131,7 @@ class Filter(KafkaInteractor):
         NULL
         
         """
-        TEXT_FIELDS = [key for key, _ in message.items()]
+        TEXT_FIELDS = [key for key, _ in message[1].items()]
         IMAGE_FIELDS = ['identificador', 'id_do_autor', 'midias']
 
         PLATFORM = 'twitter'
