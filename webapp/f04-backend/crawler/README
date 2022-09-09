@@ -1,9 +1,0 @@
-Para executar o programa, basta instalar os requirements ( em um venv, caso desejar ), e rodar o comando:
-
-python3 main.py
-
-Já deixei uma chave no arquivo de autenticação. Como esse endpoint não possui limite mensal, e o pode-se fazer 900 requisições que voltam até 100 tweets a cada 15 minutos, não deve demorar muito para coletar os 10 milhões de tweets.  
-
-Por padrão, os arquivos serão salvos na pasta './tweets/'. Os campos do json são os definidos pelo MP durante o desenvolvimento do coletor do Twitter em 2020.  Entretanto, se você quiser acrescentar alguma informação ou campo, a parte do código referente está no 'crawler/Collector.py'.
-
-Qualquer dúvida, não deixe de me chamar. Abraço!
