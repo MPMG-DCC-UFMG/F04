@@ -2,7 +2,7 @@
 
 ## Criação dos arquivos de Chaves do Twitter
 
-Crie o diretório authentication (se não exisitir) e dentro dele crie um arquivo JSON chamado **Bearer_tokens.json** com o seguinte conteúdo:
+Crie o diretório **authentication** (se não exisitir) e dentro dele crie um arquivo JSON chamado **Bearer_tokens.json** com o seguinte conteúdo:
 
 ```json
 { 
@@ -24,7 +24,6 @@ Crie o diretório authentication (se não exisitir) e dentro dele crie um arquiv
           }
      ]
 }
-
 ```
 
 Neste arquivo, é possível informar N Access Keys, pois caso alguma atinja o limite máximo de requisições, a próxima da lista será utilizada.
