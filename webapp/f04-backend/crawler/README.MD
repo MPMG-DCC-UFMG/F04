@@ -58,8 +58,6 @@ services:
     build: .
     environment:
       TZ: America/Sao_Paulo
-    volumes:
-      - ./crawler:/code/
 ```
 
 For fim, execute o seguinte comando no diretório raiz do crawler:
