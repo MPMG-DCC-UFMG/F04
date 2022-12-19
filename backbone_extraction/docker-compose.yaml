@@ -1,0 +1,9 @@
+version: "3.3"
+services:
+  crawler:
+    container_name: f04_backbone
+    env_file:
+      - ./.env
+    build: .
+    environment:
+      TZ: America/Sao_Paulo

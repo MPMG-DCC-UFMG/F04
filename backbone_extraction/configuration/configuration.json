@@ -1,0 +1,27 @@
+{
+    "configuracoes_db_retrieval":{
+            
+            "data_inicio": "01/01/2022",
+
+            "data_fim": "01/02/2022",
+
+            "limite_de_tweets": 400000
+    
+    },
+    
+    "configuracoes_backbone_extractor":{
+            
+            "percentil_nb": 95,
+            
+            "percentil_threshold": 95,
+    
+            "numero_de_processos": 15 
+    
+    },
+    
+    "configuracoes_community_classification":{
+        "tamanho_da_comunidade": 100
+    
+    }
+
+}
